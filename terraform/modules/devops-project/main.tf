@@ -8,8 +8,8 @@ resource azuredevops_project demo_project {
 
 resource azuredevops_serviceendpoint_azurerm service_connection {
   project_id                   = azuredevops_project.demo_project.id
-  service_endpoint_name        = "Key Vault Service Connection"
-  description                  = "Managed by Terraform"
+  service_endpoint_name        = var.key_vault_name
+  description                  = "Key Vault Variable Group Managed by Terraform"
   credentials {
     serviceprincipalid         = var.service_principal_app_id
     serviceprincipalkey        = var.service_principal_key
@@ -21,12 +21,12 @@ resource azuredevops_serviceendpoint_azurerm service_connection {
 
 # resource azuredevops_variable_group kay_vault_variable_group {
 #   project_id                   = azuredevops_project.demo_project.id
-#   name                         = "Key Vault Variable Group"
-#   description                  = "Key Vault Variable Group"
+#   name                         = var.key_vault_name
+#   description                  = "Key Vault Variable Group Managed by Terraform"
 #   allow_access                 = true
 
 #   key_vault {
-#     name                       = "example-kv"
+#     name                       = var.key_vault_name
 #     service_endpoint_id        = azuredevops_serviceendpoint_azurerm.service_connection.id
 #   }
 
@@ -37,4 +37,7 @@ resource azuredevops_serviceendpoint_azurerm service_connection {
 #   variable {
 #     name                       = "key2"
 #   }
+  # lifecycle                    = {
+  #   ignore_changes             = variable
+  # }
 # }
