@@ -44,6 +44,9 @@ output service_connection_id {
 output service_connection_name {
   value       = module.devops_project.service_connection_name
 }
+output service_connection_url {
+  value       = module.devops_project.service_connection_url
+}
 
 output service_principal_application_id {
   value       = module.service_principal.application_id
