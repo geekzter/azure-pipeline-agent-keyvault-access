@@ -34,5 +34,28 @@ resource azurerm_key_vault vault {
     ]
   }
 
+  # Grant access to Service Principal
+  access_policy {
+    tenant_id                  = data.azuread_client_config.current.tenant_id
+    object_id                  = var.service_principal_object_id
+
+    secret_permissions         = [
+                                "Get",
+                                "List"
+    ]
+  }
+
   tags                         = var.tags
+}
+
+resource azurerm_role_assignment service_principal_reader {
+  scope                        = azurerm_key_vault.vault.id
+  role_definition_name         = "Reader"
+  principal_id                 = var.service_principal_object_id
+}
+
+resource azurerm_key_vault_secret initial_variable {
+  name                         = "initial-variable"
+  value                        = "secret-value"
+  key_vault_id                 = azurerm_key_vault.vault.id
 }

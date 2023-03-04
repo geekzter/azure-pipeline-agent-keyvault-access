@@ -3,13 +3,21 @@ resource azuredevops_project demo_project {
   work_item_template           = "Agile"
   version_control              = "Git"
   visibility                   = "private"
-  description                  = "Managed by Terraform"
+  description                  = "Key Vault Variable Group demo managed by Terraform"
+
+  features = {
+    artifacts                  = "disabled"
+    boards                     = "disabled"
+    pipelines                  = "enabled"
+    repositories               = "disabled"
+    testplans                  = "disabled"
+  }
 }
 
 resource azuredevops_serviceendpoint_azurerm service_connection {
   project_id                   = azuredevops_project.demo_project.id
   service_endpoint_name        = var.key_vault_name
-  description                  = "Key Vault Variable Group Managed by Terraform"
+  description                  = "Key Vault Variable Group managed by Terraform"
   credentials {
     serviceprincipalid         = var.service_principal_app_id
     serviceprincipalkey        = var.service_principal_key
@@ -19,25 +27,24 @@ resource azuredevops_serviceendpoint_azurerm service_connection {
   azurerm_subscription_name    = var.subscription_name
 }
 
-# resource azuredevops_variable_group kay_vault_variable_group {
-#   project_id                   = azuredevops_project.demo_project.id
-#   name                         = var.key_vault_name
-#   description                  = "Key Vault Variable Group Managed by Terraform"
-#   allow_access                 = true
+resource azuredevops_variable_group kay_vault_variable_group {
+  project_id                   = azuredevops_project.demo_project.id
+  name                         = var.key_vault_name
+  description                  = "Key Vault Variable Group managed by Terraform"
+  allow_access                 = true
 
-#   key_vault {
-#     name                       = var.key_vault_name
-#     service_endpoint_id        = azuredevops_serviceendpoint_azurerm.service_connection.id
-#   }
+  key_vault {
+    name                       = var.key_vault_name
+    service_endpoint_id        = azuredevops_serviceendpoint_azurerm.service_connection.id
+  }
 
-#   variable {
-#     name                       = "key1"
-#   }
+  variable {
+    name                       = "initial-variable"
+  }
 
-#   variable {
-#     name                       = "key2"
-#   }
-  # lifecycle                    = {
-  #   ignore_changes             = variable
-  # }
-# }
+  lifecycle {
+    ignore_changes             = [
+      variable
+    ]
+  }  
+}

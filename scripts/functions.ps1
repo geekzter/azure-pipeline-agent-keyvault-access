@@ -34,8 +34,7 @@ function Get-LoggedInStatus () {
     if ($azureAccount -and "${env:ARM_TENANT_ID}" -and ($azureAccount.tenantId -ine $env:ARM_TENANT_ID)) {
         Write-Warning "Logged into tenant $($azureAccount.tenant_id) instead of $env:ARM_TENANT_ID (`$env:ARM_TENANT_ID)"
         $azureAccount = $null
-    }
-    if ($azureAccount) {
+    } elseif ($azureAccount) {
         $loggedIn = $true
     }
     return $loggedIn
@@ -58,7 +57,7 @@ function Login-Az (
     $loggedIn = Get-LoggedInStatus
     
     $azLoginSwitches = "--allow-no-subscriptions"
-    if (-not $azureAccount) {
+    if (!$loggedIn) {
         if ($env:CODESPACES -ieq "true") {
             $azLoginSwitches += " --use-device-code"
         }
@@ -77,7 +76,7 @@ function Login-Az (
         az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 `
                                     --query "accessToken" `
                                     --output tsv `
-                                    | Set-Item -Path env:TF_VAR_devops_pat
+                                    | Set-Item env:TF_VAR_devops_pat
         Write-Debug "TF_VAR_devops_pat: "
         $env:TF_VAR_devops_pat -replace '.','*' | Write-Debug
     } else {
