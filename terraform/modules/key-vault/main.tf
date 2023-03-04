@@ -45,6 +45,13 @@ resource azurerm_key_vault vault {
     ]
   }
 
+  network_acls {
+    default_action             = var.enable_public_access ? "Allow" : "Deny"
+    bypass                     = "AzureServices"
+    ip_rules                   = var.admin_cidr_ranges
+  }
+  public_network_access_enabled= var.enable_public_access
+
   tags                         = var.tags
 }
 

@@ -64,6 +64,8 @@ resource azurerm_resource_group rg {
 
 module key_vault {
   source                       = "./modules/key-vault"
+  admin_cidr_ranges            = local.admin_cidr_ranges
+  enable_public_access         = var.enable_public_access
   location                     = var.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
   private_endpoint_subnet_id   = module.network.private_endpoint_subnet_id

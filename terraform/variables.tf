@@ -30,7 +30,7 @@ variable deploy_bastion {
 
 variable enable_public_access {
   type                         = bool
-  default                      = false
+  default                      = true
 }
 
 variable devops_pat {

@@ -1,3 +1,7 @@
+output admin_cidr_ranges {
+  value       = local.admin_cidr_ranges
+}
+
 output key_vault_id {
   value       = module.key_vault.key_vault_id
 }
