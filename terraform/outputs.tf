@@ -36,3 +36,7 @@ output service_principal_principal_id {
 output variable_group_variable_names {
   value       = module.key_vault.secret_names
 }
+
+output virtual_network_id {
+  value       = module.network.virtual_network_id
+}

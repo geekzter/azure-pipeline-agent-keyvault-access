@@ -48,6 +48,28 @@ resource azurerm_key_vault vault {
   tags                         = var.tags
 }
 
+resource azurerm_monitor_diagnostic_setting key_vault {
+  name                         = "${azurerm_key_vault.vault.name}-logs"
+  target_resource_id           = azurerm_key_vault.vault.id
+  log_analytics_workspace_id   = var.log_analytics_workspace_resource_id
+
+  enabled_log {
+    category                   = "AuditEvent"
+
+    retention_policy {
+      enabled                  = false
+    }
+  }
+
+  metric {
+    category                   = "AllMetrics"
+
+    retention_policy {
+      enabled                  = false
+    }
+  }
+}
+
 resource azurerm_role_assignment service_principal_reader {
   scope                        = azurerm_key_vault.vault.id
   role_definition_name         = "Reader"

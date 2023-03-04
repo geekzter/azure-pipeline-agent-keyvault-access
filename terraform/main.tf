@@ -1,6 +1,15 @@
 data azuread_client_config current {}
 data azurerm_subscription current {}
 
+data http terraform_ip_address {
+# Get public IP address of the machine running this terraform template
+  url                          = "https://ipinfo.io/ip"
+}
+data http terraform_ip_prefix {
+# Get public IP prefix of the machine running this terraform template
+  url                          = "https://stat.ripe.net/data/network-info/data.json?resource=${chomp(data.http.terraform_ip_address.response_body)}"
+}
+
 # Random resource suffix, this will prevent name collisions when creating resources in parallel
 resource random_string suffix {
   length                       = 4
@@ -12,6 +21,8 @@ resource random_string suffix {
 
 
 locals {
+  admin_cidr_ranges            = sort(distinct(concat([for range in var.admin_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
+
   devops_url                   = replace(var.devops_url,"/\\/$/","")
   initial_suffix               = var.resource_suffix != null && var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
   initial_tags                 = merge(
@@ -33,6 +44,8 @@ locals {
   owner_object_id              = var.owner_object_id != null && var.owner_object_id != "" ? lower(var.owner_object_id) : data.azuread_client_config.current.object_id
   suffix                       = azurerm_resource_group.rg.tags["suffix"] # Ignores updates to var.resource_suffix
   tags                         = azurerm_resource_group.rg.tags           # Ignores updates to var.resource_suffix
+  terraform_ip_address         = chomp(data.http.terraform_ip_address.response_body)
+  terraform_ip_prefix          = jsondecode(chomp(data.http.terraform_ip_prefix.response_body)).data.prefix
 }
 
 resource azurerm_resource_group rg {
@@ -53,9 +66,25 @@ resource azurerm_resource_group rg {
 module key_vault {
   source                       = "./modules/key-vault"
   location                     = var.location
+  log_analytics_workspace_resource_id = local.log_analytics_workspace_id
   resource_group_name          = azurerm_resource_group.rg.name
   secrets                      = var.variable_group_variables
   service_principal_object_id  = module.service_principal.principal_id
+  tags                         = local.tags
+}
+
+module network {
+  source                       = "./modules/network"
+
+  address_space                = "10.201.0.0/22"
+  admin_cidr_ranges            = local.admin_cidr_ranges
+  bastion_tags                 = var.bastion_tags
+  deploy_bastion               = var.deploy_bastion
+  diagnostics_storage_id       = azurerm_storage_account.diagnostics.id
+  enable_public_access         = var.enable_public_access
+  location                     = var.location
+  log_analytics_workspace_resource_id = local.log_analytics_workspace_id
+  resource_group_name          = azurerm_resource_group.rg.name
   tags                         = local.tags
 }
 

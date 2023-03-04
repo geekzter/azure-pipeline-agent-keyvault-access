@@ -1,3 +1,8 @@
+variable admin_ip_ranges {
+  default                      = []
+  type                         = list
+}
+
 variable application_name {
   description                  = "Value of 'application' resource tag"
   default                      = "Key Vault Variable Group"
@@ -17,6 +22,17 @@ variable bastion_tags {
   nullable                     = false
 } 
 
+variable deploy_bastion {
+  description                  = "Deploys managed bastion host"
+  default                      = false
+  type                         = bool
+}
+
+variable enable_public_access {
+  type                         = bool
+  default                      = false
+}
+
 variable devops_pat {
   description                  = "A Personal Access Token to access the Azure DevOps organization. Requires Agent Pools read & manage scope."
   nullable                     = false
@@ -34,6 +50,11 @@ variable devops_url {
 variable location {
   default                      = "westeurope"
   nullable                     = false
+}
+
+variable log_analytics_workspace_id {
+  description                  = "Specify a pre-existing Log Analytics workspace. The workspace needs to have the Security, SecurityCenterFree, ServiceMap, Updates, VMInsights solutions provisioned"
+  default                      = ""
 }
 
 variable owner_object_id {

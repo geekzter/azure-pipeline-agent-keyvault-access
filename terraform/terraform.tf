@@ -6,6 +6,7 @@ terraform {
       version                  = "~> 0.3"
     }
     azurerm                    = "~> 3.39"
+    http                       = "~> 2.2"
     local                      = "~> 2.3"
     random                     = "~> 3.4"
     time                       = "~> 0.9"
