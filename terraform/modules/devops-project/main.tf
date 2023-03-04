@@ -27,7 +27,7 @@ resource azuredevops_serviceendpoint_azurerm service_connection {
   azurerm_subscription_name    = var.subscription_name
 }
 
-resource azuredevops_variable_group kay_vault_variable_group {
+resource azuredevops_variable_group key_vault_variable_group {
   project_id                   = azuredevops_project.demo_project.id
   name                         = var.key_vault_name
   description                  = "Key Vault Variable Group managed by Terraform"
@@ -38,12 +38,19 @@ resource azuredevops_variable_group kay_vault_variable_group {
     service_endpoint_id        = azuredevops_serviceendpoint_azurerm.service_connection.id
   }
 
-  variable {
-    name                       = "initial-variable"
-  }
+  # variable {
+  #   name                       = "initial-variable"
+  # }
 
+  dynamic variable {
+    for_each                   = var.variable_names
+    content {
+      name                     = variable.key
+    }
+  }  
   lifecycle {
     ignore_changes             = [
+      # Ignore changes made in the portal
       variable
     ]
   }  

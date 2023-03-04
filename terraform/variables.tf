@@ -65,3 +65,11 @@ variable tags {
   default                      = {
   }  
 } 
+
+variable variable_group_variables {
+  type                         = map
+  default = {
+    initial-variable1          = "test"
+    # initial-variable2          = "test"
+  }  
+} 

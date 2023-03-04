@@ -54,6 +54,7 @@ module key_vault {
   source                       = "./modules/key-vault"
   location                     = var.location
   resource_group_name          = azurerm_resource_group.rg.name
+  secrets                      = var.variable_group_variables
   service_principal_object_id  = module.service_principal.principal_id
   tags                         = local.tags
 }
@@ -73,4 +74,5 @@ module devops_project {
   subscription_id              = data.azurerm_subscription.current.subscription_id
   subscription_name            = data.azurerm_subscription.current.display_name
   tenant_id                    = data.azuread_client_config.current.tenant_id
+  variable_names               = [for key,value in var.variable_group_variables : key]
 }

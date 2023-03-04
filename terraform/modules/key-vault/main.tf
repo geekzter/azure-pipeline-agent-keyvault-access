@@ -55,7 +55,9 @@ resource azurerm_role_assignment service_principal_reader {
 }
 
 resource azurerm_key_vault_secret initial_variable {
-  name                         = "initial-variable"
-  value                        = "secret-value"
+  name                         = each.key
+  value                        = each.value
   key_vault_id                 = azurerm_key_vault.vault.id
+
+  for_each                     = var.secrets
 }
