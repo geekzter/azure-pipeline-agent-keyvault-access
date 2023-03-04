@@ -61,9 +61,6 @@ output service_principal_principal_url {
   value       = module.service_principal.principal_url
 }
 
-output variable_group_variable_names {
-  value       = module.key_vault.secret_names
-}
 
 output variable_group_id {
   value       = module.devops_project.variable_group_id
@@ -73,6 +70,9 @@ output variable_group_name {
 }
 output variable_group_url {
   value       = module.devops_project.variable_group_url
+}
+output variable_group_variable_names {
+  value       = module.key_vault.secret_names
 }
 
 output virtual_network_id {

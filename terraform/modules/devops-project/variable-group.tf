@@ -28,11 +28,4 @@ resource azuredevops_variable_group key_vault_variable_group {
       name                     = variable.key
     }
   }  
-
-  lifecycle {
-    ignore_changes             = [
-      # Ignore changes made in the portal
-      variable
-    ]
-  }  
 }
