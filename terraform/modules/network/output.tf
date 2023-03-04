@@ -5,18 +5,7 @@ output agent_address_range {
 output private_endpoint_subnet_id {
   value                        = azurerm_subnet.private_endpoint_subnet.id
 }
-output azurerm_private_dns_zone_blob_id {
-  value                        = azurerm_private_dns_zone.blob.id
-}
-output azurerm_private_dns_zone_blob_name {
-  value                        = azurerm_private_dns_zone.blob.name
-}
-output azurerm_private_dns_zone_file_id {
-  value                        = azurerm_private_dns_zone.file.id
-}
-output azurerm_private_dns_zone_file_name {
-  value                        = azurerm_private_dns_zone.file.name
-}
+
 output azurerm_private_dns_zone_vault_id {
   value                        = azurerm_private_dns_zone.vault.id
 }

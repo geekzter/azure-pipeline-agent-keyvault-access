@@ -6,5 +6,5 @@ output key_vault_name {
 }
 
 output secret_names {
-  value       = toset(data.azurerm_key_vault_secrets.vault.names)
+  value       = data.azurerm_key_vault_secrets.vault.names
 }

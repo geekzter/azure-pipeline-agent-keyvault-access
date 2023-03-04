@@ -49,7 +49,7 @@ locals {
 }
 
 resource azurerm_resource_group rg {
-  name                         = terraform.workspace == "default" ? "${var.resource_prefix}-keyvault-variable-group-${local.initial_suffix}" : "${var.resource_prefix}-${terraform.workspace}-keyvault-variable-group-${local.initial_suffix}"
+  name                         = terraform.workspace == "default" ? "${var.resource_prefix}-private-keyvault-${local.initial_suffix}" : "${var.resource_prefix}-${terraform.workspace}-keyvault-variable-group-${local.initial_suffix}"
   location                     = var.location
 
   tags                         = local.initial_tags
@@ -67,6 +67,7 @@ module key_vault {
   source                       = "./modules/key-vault"
   location                     = var.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
+  private_endpoint_subnet_id   = module.network.private_endpoint_subnet_id
   resource_group_name          = azurerm_resource_group.rg.name
   secrets                      = var.variable_group_variables
   service_principal_object_id  = module.service_principal.principal_id

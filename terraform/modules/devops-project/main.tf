@@ -39,7 +39,7 @@ resource azuredevops_variable_group key_vault_variable_group {
   }
 
   dynamic variable {
-    for_each                   = var.variable_names
+    for_each                   = toset(var.variable_names)
     content {
       name                     = variable.key
     }
