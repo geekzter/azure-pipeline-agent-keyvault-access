@@ -19,7 +19,6 @@ resource random_string suffix {
   special                      = false
 }
 
-
 locals {
   admin_cidr_ranges            = sort(distinct(concat([for range in var.admin_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
 
@@ -98,7 +97,7 @@ module service_principal {
 module devops_project {
   source                       = "./modules/devops-project"
   key_vault_name               = module.key_vault.key_vault_name
-  name                         = "keyvault-service-connection-${terraform.workspace}-${local.suffix}"
+  name                         = "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
   service_principal_app_id     = module.service_principal.application_id
   service_principal_key        = module.service_principal.secret
   subscription_id              = data.azurerm_subscription.current.subscription_id
