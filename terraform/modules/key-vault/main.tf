@@ -61,3 +61,13 @@ resource azurerm_key_vault_secret initial_variable {
 
   for_each                     = var.secrets
 }
+
+data azurerm_key_vault_secrets vault {
+  key_vault_id                 = azurerm_key_vault.vault.id
+
+  depends_on                   = [
+    azurerm_key_vault.vault,
+    azurerm_key_vault_secret.initial_variable,
+    azurerm_role_assignment.service_principal_reader
+  ]
+}

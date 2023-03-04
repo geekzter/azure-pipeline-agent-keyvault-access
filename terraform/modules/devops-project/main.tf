@@ -38,16 +38,13 @@ resource azuredevops_variable_group key_vault_variable_group {
     service_endpoint_id        = azuredevops_serviceendpoint_azurerm.service_connection.id
   }
 
-  # variable {
-  #   name                       = "initial-variable"
-  # }
-
   dynamic variable {
     for_each                   = var.variable_names
     content {
       name                     = variable.key
     }
   }  
+
   lifecycle {
     ignore_changes             = [
       # Ignore changes made in the portal
