@@ -21,7 +21,6 @@ resource random_string suffix {
 
 locals {
   admin_cidr_ranges            = sort(distinct(concat([for range in var.admin_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
-
   devops_url                   = replace(var.devops_url,"/\\/$/","")
   initial_suffix               = var.resource_suffix != null && var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
   initial_tags                 = merge(
@@ -43,6 +42,13 @@ locals {
   owner_object_id              = var.owner_object_id != null && var.owner_object_id != "" ? lower(var.owner_object_id) : data.azuread_client_config.current.object_id
   suffix                       = azurerm_resource_group.rg.tags["suffix"] # Ignores updates to var.resource_suffix
   tags                         = azurerm_resource_group.rg.tags           # Ignores updates to var.resource_suffix
+  test_script                  = templatefile("${path.module}/test_script.template.ps1",
+  {
+    keyVaultName               = module.key_vault.key_vault_name
+    resourceGroup              = azurerm_resource_group.rg.name
+    subscriptionId             = data.azurerm_subscription.current.subscription_id
+  })
+  test_script_file_name        = "${path.root}/../data/${terraform.workspace}/test_script.ps1"
   terraform_ip_address         = chomp(data.http.terraform_ip_address.response_body)
   terraform_ip_prefix          = jsondecode(chomp(data.http.terraform_ip_prefix.response_body)).data.prefix
 }
@@ -106,4 +112,9 @@ module devops_project {
   subscription_name            = data.azurerm_subscription.current.display_name
   tenant_id                    = data.azuread_client_config.current.tenant_id
   variable_names               = module.key_vault.secret_names
+}
+
+resource local_file test_script {
+  content                      = local.test_script
+  filename                     = local.test_script_file_name
 }
