@@ -151,7 +151,8 @@ resource azurerm_linux_virtual_machine linux_agent {
   }
 
   identity {
-    type                       = "SystemAssigned"
+    type                       = "SystemAssigned, UserAssigned"
+    identity_ids               = [var.user_assigned_identity_id]
   }
   
   os_disk {

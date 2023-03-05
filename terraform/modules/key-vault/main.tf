@@ -6,6 +6,7 @@ resource azurerm_key_vault vault {
   resource_group_name          = var.resource_group_name
   tenant_id                    = data.azurerm_client_config.current.tenant_id
 
+  # enable_rbac_authorization    = true
   enabled_for_disk_encryption  = true
   purge_protection_enabled     = false
   sku_name                     = "premium" # Required for VNet integration
@@ -37,14 +38,14 @@ resource azurerm_key_vault vault {
     }
   }  
 
-  dynamic network_acls {
-    for_each = range(var.enable_public_access ? 0 : 1)
-    content {
-      default_action           = "Deny"
-      bypass                   = "AzureServices"
-      ip_rules                 = var.admin_cidr_ranges
-    }
-  }
+  # dynamic network_acls {
+  #   for_each = range(var.enable_public_access ? 0 : 1)
+  #   content {
+  #     default_action           = "Deny"
+  #     bypass                   = "AzureServices"
+  #     ip_rules                 = var.admin_cidr_ranges
+  #   }
+  # }
 
   tags                         = var.tags
 }
@@ -71,14 +72,6 @@ resource azurerm_monitor_diagnostic_setting key_vault {
   }
 }
 
-resource azurerm_role_assignment client_reader {
-  scope                        = azurerm_key_vault.vault.id
-  role_definition_name         = "Reader"
-  principal_id                 = each.value
-
-  for_each                     = toset(var.client_object_ids)
-}
-
 resource azurerm_key_vault_secret initial_variable {
   name                         = each.key
   value                        = each.value
@@ -93,6 +86,5 @@ data azurerm_key_vault_secrets vault {
   depends_on                   = [
     azurerm_key_vault.vault,
     azurerm_key_vault_secret.initial_variable,
-    azurerm_role_assignment.client_reader
   ]
 }

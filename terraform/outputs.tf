@@ -3,7 +3,7 @@ output admin_cidr_ranges {
 }
 
 output agent_vm_id {
-  value       = module.self_hosted_linux_agents[0].vm_id
+  value       = module.self_hosted_linux_agents.vm_id
 }
 
 output key_vault_id {
@@ -84,6 +84,10 @@ output variable_group_url {
 }
 output variable_group_variable_names {
   value       = module.key_vault.secret_names
+}
+
+output verify_keyvault_access_script {
+  value       = abspath(local_file.verify_keyvault_access_script.filename)
 }
 
 output virtual_network_id {

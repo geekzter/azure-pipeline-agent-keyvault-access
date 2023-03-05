@@ -1,10 +1,7 @@
 module key_vault {
   source                       = "./modules/key-vault"
   admin_cidr_ranges            = local.admin_cidr_ranges
-  client_object_ids            = [
-    module.service_principal.principal_id,
-    module.self_hosted_linux_agents[0].identity_object_id
-  ]
+  client_object_ids            = [for k,v in local.client_object_id_map : v]
   enable_public_access         = var.enable_public_access
   location                     = var.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
@@ -45,6 +42,11 @@ module devops_project {
   subscription_name            = data.azurerm_subscription.current.display_name
   tenant_id                    = data.azuread_client_config.current.tenant_id
   variable_names               = module.key_vault.secret_names
+
+  depends_on                   = [
+    # azurerm_role_assignment.client_key_vault_reader["service_connection"],
+    azurerm_role_assignment.service_connection_key_vault_reader
+  ]
 }
 
 module self_hosted_linux_agents {
@@ -63,14 +65,14 @@ module self_hosted_linux_agents {
   location                     = var.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
 
-  computer_name                = "linuxagent${count.index+1}"
-  name                         = "${azurerm_resource_group.rg.name}-linux-agent${count.index+1}"
+  computer_name                = "linuxagent"
+  name                         = "${azurerm_resource_group.rg.name}-linux-agent"
   os_image_id                  = var.linux_os_image_id
   os_offer                     = var.linux_os_offer
   os_publisher                 = var.linux_os_publisher
   os_sku                       = var.linux_os_sku
   os_version                   = var.linux_os_version
-  pipeline_agent_name          = "${var.resource_prefix}-keyvault-${terraform.workspace}${count.index+1}"
+  pipeline_agent_name          = local.pipeline_agent_name
   pipeline_agent_pool          = module.devops_project.pool_name
   pipeline_agent_version_id    = "latest"
   storage_type                 = var.linux_storage_type
@@ -87,11 +89,10 @@ module self_hosted_linux_agents {
   timezone                     = var.timezone
   subnet_id                    = module.network.self_hosted_agents_subnet_id
   suffix                       = local.suffix
+  user_assigned_identity_id    = azurerm_user_assigned_identity.agents.id
   user_name                    = var.user_name
   user_password                = local.password
   vm_accelerated_networking    = false
-
-  count                        = 1
   depends_on                   = [
     module.network
   ]

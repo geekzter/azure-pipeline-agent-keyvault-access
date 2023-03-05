@@ -66,15 +66,9 @@ locals {
   owner                        = var.application_owner != "" ? var.application_owner : local.owner_object_id
   owner_object_id              = var.owner_object_id != null && var.owner_object_id != "" ? lower(var.owner_object_id) : data.azuread_client_config.current.object_id
   password                     = ".Az9${random_string.password.result}"
+  pipeline_agent_name          = "${var.resource_prefix}-keyvault-${terraform.workspace}"
   suffix                       = azurerm_resource_group.rg.tags["suffix"] # Ignores updates to var.resource_suffix
   tags                         = azurerm_resource_group.rg.tags           # Ignores updates to var.resource_suffix
-  test_script                  = templatefile("${path.module}/test_script.template.ps1",
-  {
-    keyVaultName               = module.key_vault.key_vault_name
-    resourceGroup              = azurerm_resource_group.rg.name
-    subscriptionId             = data.azurerm_subscription.current.subscription_id
-  })
-  test_script_file_name        = "${path.root}/../data/${terraform.workspace}/test_script.ps1"
   terraform_ip_address         = chomp(data.http.terraform_ip_address.response_body)
   terraform_ip_prefix          = jsondecode(chomp(data.http.terraform_ip_prefix.response_body)).data.prefix
 }
@@ -94,7 +88,31 @@ resource azurerm_resource_group rg {
   }  
 }
 
-resource local_file test_script {
-  content                      = local.test_script
-  filename                     = local.test_script_file_name
+resource local_file verify_keyvault_access_script {
+  content                      = templatefile("${path.root}/../scripts/templates/verify_keyvault_access.template.ps1",
+  {
+    keyVaultName               = module.key_vault.key_vault_name
+    resourceGroup              = azurerm_resource_group.rg.name
+    subscriptionId             = data.azurerm_subscription.current.subscription_id
+  })
+  filename                     = "${path.root}/../data/${terraform.workspace}/verify_keyvault_access.ps1"
+}
+
+resource local_file verify_keyvault_remote_access_script {
+  content                      = templatefile("${path.root}/../scripts/templates/verify_keyvault_remote_access.template.ps1",
+  {
+    agentName                  = local.pipeline_agent_name
+    bastionId                  = module.network.bastion_id
+    bastionName                = module.network.bastion_name
+    identityObjectId           = azurerm_user_assigned_identity.agents.principal_id
+    keyVaultName               = module.key_vault.key_vault_name
+    resourceGroup              = azurerm_resource_group.rg.name
+    sshPrivateKey              = var.ssh_private_key
+    subscriptionId             = data.azurerm_subscription.current.subscription_id
+    userName                   = var.user_name
+    vmId                       = module.self_hosted_linux_agents.vm_id
+  })
+  filename                     = "${path.root}/../data/${terraform.workspace}/verify_keyvault_remote_access.ps1"
+
+  count                        = var.deploy_bastion ? 1 : 0
 }
