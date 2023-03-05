@@ -1,10 +1,10 @@
-data azuread_client_config current {}
+data azurerm_client_config current {}
 
 resource azurerm_key_vault vault {
   name                         = substr(lower(replace("${var.resource_group_name}-vlt","/-|a|e|i|o|u|y/","")),0,24)
   location                     = var.location
   resource_group_name          = var.resource_group_name
-  tenant_id                    = data.azuread_client_config.current.tenant_id
+  tenant_id                    = data.azurerm_client_config.current.tenant_id
 
   enabled_for_disk_encryption  = true
   purge_protection_enabled     = false
@@ -12,19 +12,9 @@ resource azurerm_key_vault vault {
 
   # Grant access to self
   access_policy {
-    tenant_id                  = data.azuread_client_config.current.tenant_id
-    object_id                  = data.azuread_client_config.current.object_id
+    tenant_id                  = data.azurerm_client_config.current.tenant_id
+    object_id                  = data.azurerm_client_config.current.object_id
 
-    key_permissions            = [
-                                "Create",
-                                "Delete",
-                                "Get",
-                                "List",
-                                "Purge",
-                                "Recover",
-                                "UnwrapKey",
-                                "WrapKey",
-    ]
     secret_permissions         = [
                                 "Delete",
                                 "Get",
@@ -34,16 +24,18 @@ resource azurerm_key_vault vault {
     ]
   }
 
-  # Grant access to Service Principal
-  access_policy {
-    tenant_id                  = data.azuread_client_config.current.tenant_id
-    object_id                  = var.service_principal_object_id
+  dynamic access_policy {
+    for_each                   = toset(var.client_object_ids)
+    content {
+      tenant_id                = data.azurerm_client_config.current.tenant_id
+      object_id                = access_policy.value
 
-    secret_permissions         = [
+      secret_permissions       = [
                                 "Get",
                                 "List"
-    ]
-  }
+      ]
+    }
+  }  
 
   network_acls {
     default_action             = var.enable_public_access ? "Allow" : "Deny"
@@ -77,10 +69,12 @@ resource azurerm_monitor_diagnostic_setting key_vault {
   }
 }
 
-resource azurerm_role_assignment service_principal_reader {
+resource azurerm_role_assignment client_reader {
   scope                        = azurerm_key_vault.vault.id
   role_definition_name         = "Reader"
-  principal_id                 = var.service_principal_object_id
+  principal_id                 = each.value
+
+  for_each                     = toset(var.client_object_ids)
 }
 
 resource azurerm_key_vault_secret initial_variable {
@@ -97,6 +91,6 @@ data azurerm_key_vault_secrets vault {
   depends_on                   = [
     azurerm_key_vault.vault,
     azurerm_key_vault_secret.initial_variable,
-    azurerm_role_assignment.service_principal_reader
+    azurerm_role_assignment.client_reader
   ]
 }

@@ -65,13 +65,13 @@ resource azurerm_resource_group rg {
 module key_vault {
   source                       = "./modules/key-vault"
   admin_cidr_ranges            = local.admin_cidr_ranges
+  client_object_ids            = [module.service_principal.principal_id]
   enable_public_access         = var.enable_public_access
   location                     = var.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
   private_endpoint_subnet_id   = module.network.private_endpoint_subnet_id
   resource_group_name          = azurerm_resource_group.rg.name
   secrets                      = var.variable_group_variables
-  service_principal_object_id  = module.service_principal.principal_id
   tags                         = local.tags
 }
 
