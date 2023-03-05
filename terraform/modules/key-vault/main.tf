@@ -7,7 +7,7 @@ resource azurerm_key_vault vault {
   tenant_id                    = data.azurerm_client_config.current.tenant_id
 
   # enable_rbac_authorization    = true
-  enabled_for_disk_encryption  = true
+  # enabled_for_disk_encryption  = true
   purge_protection_enabled     = false
   sku_name                     = "premium" # Required for VNet integration
 
@@ -38,14 +38,14 @@ resource azurerm_key_vault vault {
     }
   }  
 
-  # dynamic network_acls {
-  #   for_each = range(var.enable_public_access ? 0 : 1)
-  #   content {
-  #     default_action           = "Deny"
-  #     bypass                   = "AzureServices"
-  #     ip_rules                 = var.admin_cidr_ranges
-  #   }
-  # }
+  dynamic network_acls {
+    for_each = range(var.enable_public_access ? 0 : 1)
+    content {
+      default_action           = "Deny"
+      bypass                   = "AzureServices"
+      ip_rules                 = var.admin_cidr_ranges
+    }
+  }
 
   tags                         = var.tags
 }

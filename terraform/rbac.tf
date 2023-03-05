@@ -22,13 +22,19 @@ resource azurerm_user_assigned_identity agents {
 #   for_each                     = local.client_object_id_map
 # }
 
-resource azurerm_role_assignment client_key_vault_data_reader {
-  scope                        = module.key_vault.key_vault_id
-  role_definition_name         = "Key Vault Secrets User"
-  principal_id                 = each.value
+# resource azurerm_role_assignment client_key_vault_data_reader {
+#   scope                        = module.key_vault.key_vault_id
+#   role_definition_name         = "Key Vault Secrets User"
+#   principal_id                 = each.value
 
-  for_each                     = local.client_object_id_map
-}
+#   for_each                     = local.client_object_id_map
+# }
+
+# resource azurerm_role_assignment terraform_key_vault_data_reader {
+#   scope                        = module.key_vault.key_vault_id
+#   role_definition_name         = "Key Vault Secrets User"
+#   principal_id                 = data.azuread_client_config.current.object_id 
+# }
 
 resource azurerm_role_assignment user_assigned_key_vault_reader {
   scope                        = module.key_vault.key_vault_id

@@ -11,7 +11,7 @@ $resourceGroup = "${resourceGroup}"
 $subscriptionId = "${subscriptionId}"
 
 Write-Host "`nTesting ARM control plane access to Key Vault '${keyVaultName}' in resource group '${resourceGroup}' (subscription '${subscriptionId}')"
-az keyvault show -n rcvnprvtkvltwlnvlt -g ${resourceGroup} --subscription ${subscriptionId} -o table
+az keyvault show -n ${keyVaultName} -g ${resourceGroup} --subscription ${subscriptionId} -o table
 
 Write-Host "`nTesting data plane access to Key Vault '${keyVaultName}' in resource group '${resourceGroup}' (subscription '${subscriptionId}')"
 az keyvault secret list --vault-name ${keyVaultName} --subscription ${subscriptionId} -o table

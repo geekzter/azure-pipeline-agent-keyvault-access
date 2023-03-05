@@ -16,20 +16,6 @@ if (!(az extension list --query "[?name=='azure-devops'].version" -o tsv)) {
 }
 
 Write-Host "This script will verify private Key Vault access by executing data plane command 'az keyvault secret list' on agent ${agentName}..."
-
-# Pipe the test script to the bastion host
-# Write-Output 'az login --identity;az keyvault secret list --vault-name ${keyVaultName} --subscription ${subscriptionId} -o table' | `
-#               az network bastion ssh --name ${bastionName} `
-#                                      --resource-group ${resourceGroup} `
-#                                      --subscription ${subscriptionId}
-#                                      --target-resource-id ${vmId} `
-#                                      --auth-type ssh-key `
-#                                      --username ${userName} `
-#                                      --ssh-key ${sshPrivateKey}
-
-
-
-#
 Write-Output 'az login --identity -u ${identityObjectId};az keyvault secret list --vault-name ${keyVaultName} --subscription ${subscriptionId} -o table' | `
               az network bastion ssh --ids ${bastionId} `
                                      --target-resource-id ${vmId} `
