@@ -19,9 +19,34 @@ resource random_string suffix {
   special                      = false
 }
 
+resource random_string password {
+  length                       = 12
+  upper                        = true
+  lower                        = true
+  numeric                      = true
+  special                      = true
+# override_special             = "!@#$%&*()-_=+[]{}<>:?" # default
+# Avoid characters that may cause shell scripts to break
+  override_special             = "." 
+}
+
 locals {
   admin_cidr_ranges            = sort(distinct(concat([for range in var.admin_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
-  devops_url                   = replace(var.devops_url,"/\\/$/","")
+  devops_org_url               = replace(var.devops_org_url,"/\\/$/","")
+  environment_variables        = {
+    PIPELINE_DEMO_AGENT_LOCATION           = var.location
+    PIPELINE_DEMO_AGENT_OUTBOUND_IP        = module.network.outbound_ip_address
+    PIPELINE_DEMO_AGENT_SUBNET_ID          = module.network.self_hosted_agents_subnet_id
+    PIPELINE_DEMO_AGENT_VIRTUAL_NETWORK_ID = module.network.virtual_network_id
+    PIPELINE_DEMO_APPLICATION_NAME         = var.application_name
+    PIPELINE_DEMO_APPLICATION_OWNER        = local.owner
+    PIPELINE_DEMO_RESOURCE_PREFIX          = var.resource_prefix
+    PIPELINE_DEMO_RESOURCE_GROUP_ID        = azurerm_resource_group.rg.id
+    PIPELINE_DEMO_RESOURCE_GROUP_NAME      = azurerm_resource_group.rg.name
+    PIPELINE_DEMO_RESOURCE_KEY_VAULT_ID    = module.key_vault.key_vault_id
+    PIPELINE_DEMO_RESOURCE_KEY_VAULT_NAME  = module.key_vault.key_vault_name
+    PIPELINE_DEMO_RESOURCE_SUBSCRIPTION_ID = data.azurerm_subscription.current.subscription_id
+  }
   initial_suffix               = var.resource_suffix != null && var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
   initial_tags                 = merge(
     {
@@ -40,6 +65,7 @@ locals {
   )
   owner                        = var.application_owner != "" ? var.application_owner : local.owner_object_id
   owner_object_id              = var.owner_object_id != null && var.owner_object_id != "" ? lower(var.owner_object_id) : data.azuread_client_config.current.object_id
+  password                     = ".Az9${random_string.password.result}"
   suffix                       = azurerm_resource_group.rg.tags["suffix"] # Ignores updates to var.resource_suffix
   tags                         = azurerm_resource_group.rg.tags           # Ignores updates to var.resource_suffix
   test_script                  = templatefile("${path.module}/test_script.template.ps1",
@@ -66,52 +92,6 @@ resource azurerm_resource_group rg {
       tags["suffix"]
     ]
   }  
-}
-
-module key_vault {
-  source                       = "./modules/key-vault"
-  admin_cidr_ranges            = local.admin_cidr_ranges
-  client_object_ids            = [module.service_principal.principal_id]
-  enable_public_access         = var.enable_public_access
-  location                     = var.location
-  log_analytics_workspace_resource_id = local.log_analytics_workspace_id
-  private_endpoint_subnet_id   = module.network.private_endpoint_subnet_id
-  resource_group_name          = azurerm_resource_group.rg.name
-  secrets                      = var.variable_group_variables
-  tags                         = local.tags
-}
-
-module network {
-  source                       = "./modules/network"
-
-  address_space                = "10.201.0.0/22"
-  admin_cidr_ranges            = local.admin_cidr_ranges
-  bastion_tags                 = var.bastion_tags
-  deploy_bastion               = var.deploy_bastion
-  diagnostics_storage_id       = azurerm_storage_account.diagnostics.id
-  enable_public_access         = var.enable_public_access
-  location                     = var.location
-  log_analytics_workspace_resource_id = local.log_analytics_workspace_id
-  resource_group_name          = azurerm_resource_group.rg.name
-  tags                         = local.tags
-}
-
-module service_principal {
-  source                       = "./modules/service-principal"
-  name                         = "${var.resource_prefix}-keyvault-service-connection-${terraform.workspace}-${local.suffix}"
-  owner_object_id              = local.owner_object_id
-}
-
-module devops_project {
-  source                       = "./modules/devops-project"
-  key_vault_name               = module.key_vault.key_vault_name
-  name                         = "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
-  service_principal_app_id     = module.service_principal.application_id
-  service_principal_key        = module.service_principal.secret
-  subscription_id              = data.azurerm_subscription.current.subscription_id
-  subscription_name            = data.azurerm_subscription.current.display_name
-  tenant_id                    = data.azuread_client_config.current.tenant_id
-  variable_names               = module.key_vault.secret_names
 }
 
 resource local_file test_script {

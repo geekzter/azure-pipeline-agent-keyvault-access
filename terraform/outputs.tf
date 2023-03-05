@@ -12,6 +12,9 @@ output key_vault_name {
 output pool_id {
   value       = module.devops_project.pool_id
 }
+output pool_name {
+  value       = module.devops_project.pool_name
+}
 output pool_url {
   value       = module.devops_project.pool_url
 }

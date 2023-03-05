@@ -6,6 +6,7 @@ terraform {
       version                  = "~> 0.3"
     }
     azurerm                    = "~> 3.39"
+    cloudinit                  = "~> 2.2"
     http                       = "~> 2.2"
     local                      = "~> 2.3"
     random                     = "~> 3.4"
@@ -15,7 +16,7 @@ terraform {
 }
 
 provider azuredevops {
-  org_service_url              = local.devops_url
+  org_service_url              = local.devops_org_url
   personal_access_token        = var.devops_pat
 }
 provider azurerm {

@@ -1,6 +1,9 @@
 output pool_id {
   value       = azuredevops_agent_pool.pool.id
 }
+output pool_name {
+  value       = azuredevops_agent_pool.pool.name
+}
 output pool_url {
   value       = "${data.azuredevops_client_config.current.organization_url}/_settings/agentpools?poolId=${azuredevops_agent_pool.pool.id}&view=jobs"
 }

@@ -1,0 +1,10 @@
+write_files:
+- path: /etc/environment
+  content: |%{ for name, value in environment }
+    ${name}="${value}"%{ endfor ~}
+
+  append: true
+
+runcmd:
+  # User configuration
+  - chown -R ${user_name}:${user_name} /home/${user_name}
