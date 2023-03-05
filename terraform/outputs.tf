@@ -2,6 +2,10 @@ output admin_cidr_ranges {
   value       = local.admin_cidr_ranges
 }
 
+output agent_vm_id {
+  value       = module.self_hosted_linux_agents[0].vm_id
+}
+
 output key_vault_id {
   value       = module.key_vault.key_vault_id
 }

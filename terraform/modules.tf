@@ -1,7 +1,10 @@
 module key_vault {
   source                       = "./modules/key-vault"
   admin_cidr_ranges            = local.admin_cidr_ranges
-  client_object_ids            = [module.service_principal.principal_id]
+  client_object_ids            = [
+    module.service_principal.principal_id,
+    module.self_hosted_linux_agents[0].identity_object_id
+  ]
   enable_public_access         = var.enable_public_access
   location                     = var.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
@@ -67,7 +70,7 @@ module self_hosted_linux_agents {
   os_publisher                 = var.linux_os_publisher
   os_sku                       = var.linux_os_sku
   os_version                   = var.linux_os_version
-  pipeline_agent_name          = "keyvault-test-${terraform.workspace}${count.index+1}"
+  pipeline_agent_name          = "${var.resource_prefix}-keyvault-${terraform.workspace}${count.index+1}"
   pipeline_agent_pool          = module.devops_project.pool_name
   pipeline_agent_version_id    = "latest"
   storage_type                 = var.linux_storage_type

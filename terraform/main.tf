@@ -40,11 +40,11 @@ locals {
     PIPELINE_DEMO_AGENT_VIRTUAL_NETWORK_ID = module.network.virtual_network_id
     PIPELINE_DEMO_APPLICATION_NAME         = var.application_name
     PIPELINE_DEMO_APPLICATION_OWNER        = local.owner
-    PIPELINE_DEMO_RESOURCE_PREFIX          = var.resource_prefix
+    # PIPELINE_DEMO_KEY_VAULT_ID             = module.key_vault.key_vault_id
+    # PIPELINE_DEMO_KEY_VAULT_NAME           = module.key_vault.key_vault_name
     PIPELINE_DEMO_RESOURCE_GROUP_ID        = azurerm_resource_group.rg.id
     PIPELINE_DEMO_RESOURCE_GROUP_NAME      = azurerm_resource_group.rg.name
-    PIPELINE_DEMO_RESOURCE_KEY_VAULT_ID    = module.key_vault.key_vault_id
-    PIPELINE_DEMO_RESOURCE_KEY_VAULT_NAME  = module.key_vault.key_vault_name
+    PIPELINE_DEMO_RESOURCE_PREFIX          = var.resource_prefix
     PIPELINE_DEMO_RESOURCE_SUBSCRIPTION_ID = data.azurerm_subscription.current.subscription_id
   }
   initial_suffix               = var.resource_suffix != null && var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
