@@ -158,31 +158,6 @@ function Open-Browser (
     }
 }
 
-function Prompt-User (
-    [parameter(Mandatory=$false)][string]
-    $PromptMessage = "Continue with next step?",
-    [parameter(Mandatory=$false)][string]
-    $ContinueMessage = "Continue with next step",
-    [parameter(Mandatory=$false)][string]
-    $AbortMessage = "Aborting demo"
-) {
-    $defaultChoice = 0
-    # Prompt to continue
-    $choices = @(
-        [System.Management.Automation.Host.ChoiceDescription]::new("&Continue", $ContinueMessage)
-        [System.Management.Automation.Host.ChoiceDescription]::new("&Exit", $AbortMessage)
-    )
-    $decision = $Host.UI.PromptForChoice("`n", $PromptMessage, $choices, $defaultChoice)
-    Write-Debug "Decision: $decision"
-
-    if ($decision -eq 0) {
-        Write-Host "$($choices[$decision].HelpMessage)"
-    } else {
-        Write-Host "$($PSStyle.Formatting.Warning)$($choices[$decision].HelpMessage)$($PSStyle.Reset)"
-        exit $decision             
-    }
-}
-
 function Validate-ExitCode (
     [string]$cmd
 ) {

@@ -53,6 +53,7 @@ while [ "$1" != "" ]; do
                                         ;;
         --org-url)                      shift
                                         ORG_URL=$1
+                                        ORG=$(basename $ORG_URL)
                                         ;;        
         --pat)                          shift
                                         PAT=$1
@@ -100,9 +101,9 @@ sudo ./bin/installdependencies.sh
 
 # Unattended config
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops#unattended-config
-echo "Creating agent ${AGENT_NAME} and adding it to pool ${AGENT_POOL} in organization ${ORG}..."
+echo "Creating agent ${AGENT_NAME} and adding it to pool ${AGENT_POOL} in organization ${ORG_URL}..."
 ./config.sh --unattended \
-            --url $ORGURL \
+            --url $ORG_URL \
             --auth pat --token $PAT \
             --pool $AGENT_POOL \
             --agent $AGENT_NAME --replace \

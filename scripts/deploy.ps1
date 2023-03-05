@@ -79,25 +79,65 @@ try {
     }
 
     if ($Apply) {
-        $defaultChoice = 0
-        if (!$Force) {
-            # Prompt to continue
-            $choices = @(
-                [System.Management.Automation.Host.ChoiceDescription]::new("&Continue", "Deploy infrastructure")
-                [System.Management.Automation.Host.ChoiceDescription]::new("&Exit", "Abort infrastructure deployment")
-            )
-            $decision = $Host.UI.PromptForChoice($null, "Do you wish to proceed executing Terraform plan $planFile in workspace $workspace?", $choices, $defaultChoice)
+        Write-Verbose "Converting $planFile into JSON so we can perform some inspection..."
+        $planJSON = (terraform show -json $planFile)
+        if ($DebugPreference -ine "SilentlyContinue") {
+            New-TemporaryFile | Select-Object -ExpandProperty FullName | Set-Variable jsonPlanFile
+            $jsonPlanFile += ".json"
+            $planJSON | Set-Content $jsonPlanFile
+            Write-Debug "Plan file (json): ${jsonPlanFile}"
+        }
 
-            if ($decision -eq 0) {
-                Write-Host "$($choices[$decision].HelpMessage)"
-            } else {
-                Write-Host "$($PSStyle.Formatting.Warning)$($choices[$decision].HelpMessage)$($PSStyle.Reset)"
-                exit                    
+        # Check whether key resources will be replaced
+        if (Get-Command jq -ErrorAction SilentlyContinue) {
+            $psNativeCommandArgumentPassingBackup = $PSNativeCommandArgumentPassing
+            try {
+                $PSNativeCommandArgumentPassing = "Legacy"
+                $linuxVMsReplaced     = $planJSON | jq -r '.resource_changes[] | select(.address|contains(\"azurerm_linux_virtual_machine.\"))             | select( any (.change.actions[];contains(\"delete\"))) | .address'
+                Validate-ExitCode "jq"
+                $vmsReplaced          = (($linuxVMsReplaced + $linuxVMSSsReplaced + $windowsVMsReplaced + $windowsVMSSsReplaced) -replace '(\w+)(module\.)', "`$1`n`$2")    
+            } finally {
+                $PSNativeCommandArgumentPassing = $psNativeCommandArgumentPassingBackup
             }
-        }        
+        } else {
+            Write-Warning "jq not found, plan validation skipped. Look at the plan carefully before approving"
+            if ($Force) {
+                $Force = $false # Ignore force if automated vcalidation is not possible
+                Write-Warning "Ignoring -force"
+            }
+        }
+
+        if (!$inAutomation) {
+            $defaultChoice = 0
+            if ($vmsReplaced) {
+                $defaultChoice = 1
+                Write-Warning "You're about to remove or replace these Virtual Machines in workspace '${workspace}':"
+                $vmsReplaced
+                if ($Force) {
+                    $Force = $false # Ignore force if resources with state get replaced
+                    Write-Warning "Ignoring -force"
+                }
+            }
+
+            if (!$Force) {
+                # Prompt to continue
+                $choices = @(
+                    [System.Management.Automation.Host.ChoiceDescription]::new("&Continue", "Deploy infrastructure")
+                    [System.Management.Automation.Host.ChoiceDescription]::new("&Exit", "Abort infrastructure deployment")
+                )
+                $decision = $Host.UI.PromptForChoice("`n", "Do you wish to proceed executing Terraform plan $planFile in workspace $workspace?", $choices, $defaultChoice)
+
+                if ($decision -eq 0) {
+                    Write-Host "$($choices[$decision].HelpMessage)"
+                } else {
+                    Write-Host "$($PSStyle.Formatting.Warning)$($choices[$decision].HelpMessage)$($PSStyle.Reset)"
+                    exit                    
+                }
+            }
+        }
+
         Invoke "terraform apply $forceArgs '$planFile'"
     }
-
     if ($Output) {
         Invoke "terraform output"
     }
