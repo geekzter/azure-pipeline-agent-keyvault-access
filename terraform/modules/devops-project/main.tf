@@ -11,7 +11,16 @@ resource azuredevops_project demo_project {
     artifacts                  = "disabled"
     boards                     = "disabled"
     pipelines                  = "enabled"
-    repositories               = "disabled"
+    repositories               = "enabled"
     testplans                  = "disabled"
+  }
+}
+
+resource azuredevops_git_repository demo_repo {
+  project_id                   = azuredevops_project.demo_project.id
+  name                         = "demo"
+  default_branch               = "refs/heads/main"
+  initialization {
+    init_type                  = "Clean"
   }
 }

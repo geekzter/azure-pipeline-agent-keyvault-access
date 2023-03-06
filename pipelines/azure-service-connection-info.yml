@@ -1,0 +1,49 @@
+trigger: none
+schedules:
+- cron: '0 1 * * *'
+  displayName: 'Nightly build (UTC)'
+  always: 'true'
+  branches:
+    include:
+    - main
+
+jobs:
+- job: agent
+  displayName: 'Get Azure Service Connection Info'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: AzureCLI@2
+    displayName: 'Display Identity information'
+    inputs:
+      azureSubscription: '$(subscriptionConnection)'
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        Write-Host "Service Connection name: '$(subscriptionConnection)'"
+
+        az account show --query "user.name" -o tsv | Set-Variable appId
+        az account show -o json | Out-File -FilePath azureAccount.json
+        Get-Content azureAccount.json
+
+        Write-Host "`nRole assignments for the identity:"
+        az role assignment list --all --assignee $appId -o json | Out-File -FilePath roleAssignments.json
+        Get-Content roleAssignments.json | ConvertFrom-Json `
+                                         | Select-Object -Property roleDefinitionName, scope `
+                                         | Sort-Object -Property roleDefinitionName
+                                         | Format-Table -AutoSize -Wrap
+
+        Write-Host "`nService Principal object of the identity:"
+        az ad sp show --id $appId -o json | Out-File -FilePath servicePrincipal.json
+        Get-Content servicePrincipal.json
+
+        Write-Host "`nSubscriptions the identity has access to:"
+        az account list --query "sort_by([].{Name:name, SubscriptionId:id}, &Name)" -o table
+        
+        Write-Host "`nResource groups that identity has access to in subscription '$(az account show --query name -o tsv)':"
+        az group list --query "sort_by([].{Name:name, ResourceId:id}, &Name)" -o table
+      workingDirectory: '$(Build.ArtifactStagingDirectory)'
+
+  - publish: $(Build.ArtifactStagingDirectory)
+    displayName: 'Publish json files'
+    artifact: indentityInfo

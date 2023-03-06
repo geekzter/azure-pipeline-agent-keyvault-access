@@ -48,8 +48,8 @@ resource azurerm_role_assignment system_assigned_key_vault_reader {
   principal_id                 = module.self_hosted_linux_agents.identity_object_id
 }
 
-resource azurerm_role_assignment service_connection_key_vault_reader {
-  scope                        = module.key_vault.key_vault_id
+resource azurerm_role_assignment service_connection_resource_group_reader {
+  scope                        = azurerm_resource_group.rg.id
   role_definition_name         = "Reader"
   principal_id                 = module.service_principal.principal_id
 }

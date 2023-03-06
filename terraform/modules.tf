@@ -45,7 +45,7 @@ module devops_project {
 
   depends_on                   = [
     # azurerm_role_assignment.client_key_vault_reader["service_connection"],
-    azurerm_role_assignment.service_connection_key_vault_reader
+    azurerm_role_assignment.service_connection_resource_group_reader
   ]
 }
 
