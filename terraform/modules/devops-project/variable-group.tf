@@ -11,6 +11,12 @@ resource azuredevops_serviceendpoint_azurerm service_connection {
   azurerm_subscription_name    = var.subscription_name
 }
 
+resource azuredevops_resource_authorization service_connection {
+  project_id                   = azuredevops_project.demo_project.id
+  resource_id                  = azuredevops_serviceendpoint_azurerm.service_connection.id
+  authorized                   = true
+}
+
 resource azuredevops_variable_group key_vault_variable_group {
   project_id                   = azuredevops_project.demo_project.id
   name                         = var.key_vault_name

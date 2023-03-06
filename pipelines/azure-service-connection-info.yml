@@ -16,11 +16,11 @@ jobs:
   - task: AzureCLI@2
     displayName: 'Display Identity information'
     inputs:
-      azureSubscription: '$(subscriptionConnection)'
+      azureSubscription: '$(serviceConnectionName)'
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        Write-Host "Service Connection name: '$(subscriptionConnection)'"
+        Write-Host "Service Connection name: '$(serviceConnectionName)'"
 
         az account show --query "user.name" -o tsv | Set-Variable appId
         az account show -o json | Out-File -FilePath azureAccount.json

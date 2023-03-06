@@ -25,4 +25,9 @@ resource azuredevops_build_definition service_connection_info {
   variable_groups              = [
     azuredevops_variable_group.key_vault_variable_group.id
   ]
+
+  variable {
+    name                       = "serviceConnectionName"
+    value                      = azuredevops_serviceendpoint_azurerm.service_connection.service_endpoint_name
+  }
 }
