@@ -13,6 +13,10 @@ output key_vault_name {
   value       = module.key_vault.key_vault_name
 }
 
+output pipelines {
+  value       = module.devops_project.pipelines
+}
+
 output pool_id {
   value       = module.devops_project.pool_id
 }

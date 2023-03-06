@@ -1,3 +1,12 @@
+output pipelines {
+  value       = {for pipeline_name,yaml_file in local.pipeline_definitions : pipeline_name => {
+    id        = azuredevops_build_definition.pipeline[pipeline_name].id
+    name      = azuredevops_build_definition.pipeline[pipeline_name].name
+    url       = "${data.azuredevops_client_config.current.organization_url}/${azuredevops_project.demo_project.name}/_build?definitionId=${azuredevops_build_definition.pipeline[pipeline_name].id}"
+    yaml_file = yaml_file
+  }}
+}
+
 output pool_id {
   value       = azuredevops_agent_pool.pool.id
 }
