@@ -74,6 +74,10 @@ resource azuredevops_build_definition pipeline {
   ]
 
   variable {
+    name                       = "poolName"
+    value                      = azuredevops_agent_pool.pool.name
+  }
+  variable {
     name                       = "keyVaultId"
     value                      = var.key_vault_id
   }

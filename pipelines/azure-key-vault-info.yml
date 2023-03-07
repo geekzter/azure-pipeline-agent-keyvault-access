@@ -11,7 +11,7 @@ jobs:
 - job: agent
   displayName: 'Access Key Vault'
   pool:
-    vmImage: 'ubuntu-latest'
+    name: $(poolName)
   steps:
   - task: AzureCLI@2
     displayName: 'AzureCLI@2: Display Service Connection Info'
