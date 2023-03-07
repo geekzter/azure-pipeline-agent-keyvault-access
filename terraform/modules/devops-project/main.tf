@@ -18,7 +18,7 @@ resource azuredevops_project demo_project {
 
 resource azuredevops_git_repository demo_repo {
   project_id                   = azuredevops_project.demo_project.id
-  name                         = "demo"
+  name                         = "pipelines"
   default_branch               = "refs/heads/main"
   initialization {
     init_type                  = "Clean"

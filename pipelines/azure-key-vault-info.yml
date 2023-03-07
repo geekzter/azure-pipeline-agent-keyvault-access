@@ -9,16 +9,15 @@ schedules:
 
 jobs:
 - job: agent
-  displayName: 'Get Azure Service Connection Info'
+  displayName: 'Access Key Vault'
   pool:
     vmImage: 'ubuntu-latest'
   steps:
   - task: AzureCLI@2
-    displayName: 'Display Identity information'
+    displayName: 'AzureCLI@2: Display Service Connection Info'
     inputs:
       azureSubscription: '$(serviceConnectionName)'
-      scriptType: pscore
-      scriptLocation: inlineScript
+      failOnStandardError: true
       inlineScript: |
         Write-Host "Service Connection name: '$(serviceConnectionName)'"
 
@@ -42,7 +41,46 @@ jobs:
         
         Write-Host "`nResource groups that identity has access to in subscription '$(az account show --query name -o tsv)':"
         az group list --query "sort_by([].{Name:name, ResourceId:id}, &Name)" -o table
+      scriptLocation: inlineScript
+      scriptType: pscore
       workingDirectory: '$(Build.ArtifactStagingDirectory)'
+
+  - task: AzureCLI@2
+    displayName: 'AzureCLI@2: Access Key Vault'
+    inputs:
+      azureSubscription: '$(serviceConnectionName)'
+      failOnStandardError: true
+      inlineScript: |
+        $keyVaultId = "$(keyVaultId)"
+        $keyVaultIdElements = $keyVaultId.Split('/')
+        $keyVaultName = $keyVaultIdElements[8]
+        $resourceGroupName = $keyVaultIdElements[4]
+        $subscriptionId = $keyVaultIdElements[2]
+
+        Write-Host "`nTesting ARM control plane access to Key Vault '$keyVaultName' in resource group '$resourceGroupName' (subscription '$subscriptionId')"
+        az keyvault show -n $keyVaultName -g $resourceGroupName --subscription $subscriptionId -o table
+
+        Write-Host "`nTesting data plane access to Key Vault '$keyVaultName' in resource group '$resourceGroupName' (subscription '$subscriptionId')"
+        az keyvault secret list --vault-name $keyVaultName --subscription $subscriptionId -o table
+      scriptLocation: inlineScript
+      scriptType: pscore
+      workingDirectory: '$(Build.ArtifactStagingDirectory)'
+
+  - task: AzureKeyVault@2
+    displayName: 'AzureKeyVault@2: Access Key Vault'
+    inputs:
+      azureSubscription: '$(serviceConnectionName)'
+      keyVaultName: $(keyVaultName)
+      secretsFilter: '*'
+      runAsPreJob: false
+
+  - task: AzureKeyVault@2
+    displayName: 'AzureKeyVault@2: Access Key Vault (pre-job)'
+    inputs:
+      azureSubscription: '$(serviceConnectionName)'
+      keyVaultName: $(keyVaultName)
+      secretsFilter: '*'
+      runAsPreJob: true
 
   - publish: $(Build.ArtifactStagingDirectory)
     displayName: 'Publish json files'

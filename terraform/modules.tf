@@ -34,7 +34,7 @@ module service_principal {
 
 module devops_project {
   source                       = "./modules/devops-project"
-  key_vault_name               = module.key_vault.key_vault_name
+  key_vault_id                 = module.key_vault.key_vault_id
   name                         = "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
   service_principal_app_id     = module.service_principal.application_id
   service_principal_key        = module.service_principal.secret

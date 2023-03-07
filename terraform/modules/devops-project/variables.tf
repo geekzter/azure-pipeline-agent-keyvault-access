@@ -1,4 +1,4 @@
-variable key_vault_name {}
+variable key_vault_id {}
 variable name {}
 variable service_principal_app_id {}
 variable service_principal_key {}
