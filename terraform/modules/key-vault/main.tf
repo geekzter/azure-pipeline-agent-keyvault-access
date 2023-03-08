@@ -44,6 +44,7 @@ resource azurerm_key_vault vault {
       default_action           = "Deny"
       bypass                   = "AzureServices"
       ip_rules                 = var.admin_cidr_ranges
+      # ip_rules                 = concat(var.admin_cidr_ranges,["AzureDevOps"])
     }
   }
 
