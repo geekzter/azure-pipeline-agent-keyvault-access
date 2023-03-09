@@ -71,6 +71,19 @@ try {
 
     if ($Plan -or $Apply -or $Destroy) {
         Login-Az -DisplayMessages
+
+        $resourceGroup = (Get-TerraformOutput resource_group_name)
+        if ($resourceGroup) {
+            Invoke-Command -ScriptBlock {
+                $Private:ErrorActionPreference = "Continue"
+                $vms = $(az vm list -d -g $resourceGroup --subscription $env:ARM_SUBSCRIPTION_ID --query "[?powerState!='VM running'].id" -o tsv)
+                if ($vms) {
+                    Write-Host "Starting VM's in resource group '${resourceGroup}'..."
+                    az vm start --ids $vms --no-wait -o none 2>$null
+                    az vm start --ids $vms --query "[].name" -o tsv
+                }
+            }
+        }        
     }
 
     if ($Plan -or $Apply) {
