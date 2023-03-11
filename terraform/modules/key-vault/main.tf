@@ -6,27 +6,29 @@ resource azurerm_key_vault vault {
   resource_group_name          = var.resource_group_name
   tenant_id                    = data.azurerm_client_config.current.tenant_id
 
-  # enable_rbac_authorization    = true
-  # enabled_for_disk_encryption  = true
+  enable_rbac_authorization    = var.use_aad_rbac
   purge_protection_enabled     = false
   sku_name                     = "premium" # Required for VNet integration
 
   # Grant access to self
-  access_policy {
-    tenant_id                  = data.azurerm_client_config.current.tenant_id
-    object_id                  = data.azurerm_client_config.current.object_id
+  dynamic access_policy {
+    for_each = range(var.use_aad_rbac ? 0 : 1)
+    content {
+      tenant_id                = data.azurerm_client_config.current.tenant_id
+      object_id                = data.azurerm_client_config.current.object_id
 
-    secret_permissions         = [
-                                "Delete",
-                                "Get",
-                                "List",
-                                "Purge",
-                                "Set",
-    ]
+      secret_permissions       = [
+                                  "Delete",
+                                  "Get",
+                                  "List",
+                                  "Purge",
+                                  "Set",
+      ]
+    }
   }
 
   dynamic access_policy {
-    for_each                   = toset(var.client_object_ids)
+    for_each                   = toset(var.use_aad_rbac ? [] : var.client_object_ids)
     content {
       tenant_id                = data.azurerm_client_config.current.tenant_id
       object_id                = access_policy.value

@@ -137,6 +137,12 @@ variable timezone {
   default                      = "W. Europe Standard Time"
 }
 
+variable use_key_vault_aad_rbac {
+  description                  = "Whether to use Key Vault AAD RBAC to grant access to the Key Vault, or use access policies instead"
+  type                         = bool
+  default                      = false
+}
+
 variable user_name {
   default                      = "devopsadmin"
 }

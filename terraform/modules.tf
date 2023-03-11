@@ -9,6 +9,11 @@ module key_vault {
   resource_group_name          = azurerm_resource_group.rg.name
   secrets                      = var.variable_group_variables
   tags                         = local.tags
+  use_aad_rbac                 = var.use_key_vault_aad_rbac
+
+  depends_on = [
+    azurerm_role_assignment.terraform_key_vault_data_access
+  ]
 }
 
 module network {
@@ -45,7 +50,8 @@ module devops_project {
 
   depends_on                   = [
     # azurerm_role_assignment.client_key_vault_reader["service_connection"],
-    azurerm_role_assignment.service_connection_resource_group_reader
+    # azurerm_role_assignment.service_connection_resource_group_reader
+    azurerm_role_assignment.client_key_vault_reader
   ]
 }
 

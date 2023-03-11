@@ -2,6 +2,9 @@ variable admin_cidr_ranges {
   type                         = list
   default                      = []
 }
+variable client_object_ids {
+  type                        = list
+}
 variable enable_public_access {
   type                         = bool
 }
@@ -12,11 +15,11 @@ variable resource_group_name {}
 variable secrets {
   type                         = map
 } 
-variable client_object_ids {
-  type                        = list
-}
 variable tags {
   type                         = map
   nullable                     = false
   default                      = {}  
 } 
+variable use_aad_rbac {
+  type                         = bool
+}
