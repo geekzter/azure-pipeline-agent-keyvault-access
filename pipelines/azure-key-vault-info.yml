@@ -1,14 +1,28 @@
 trigger: none
 schedules:
-- cron: '0 1 * * *'
-  displayName: 'Nightly build (UTC)'
+- cron: '0 12 * * Fri'
+  displayName: 'Weekly build (UTC)'
   always: 'true'
   branches:
     include:
     - main
 
 jobs:
+- job: startAgent
+  displayName: 'Start Agent'
+  pool:
+    name: 'Azure Pipelines'
+    vmImage: ubuntu-latest
+  steps:
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Start agents in resource group'
+    inputs:
+      azureSubscription: '$(serviceConnectionName)'
+      action: 'Start'
+      resourceGroupName: '$(resourceGroupName)'
+
 - job: agent
+  dependsOn: startAgent
   displayName: 'Access Key Vault'
   pool:
     name: $(poolName)

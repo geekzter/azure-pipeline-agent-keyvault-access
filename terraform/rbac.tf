@@ -38,11 +38,6 @@ resource azurerm_role_assignment terraform_key_vault_data_access {
   count                        = var.use_key_vault_aad_rbac ? 1 : 0
 }
 
-# resource azurerm_role_assignment user_assigned_key_vault_reader {
-#   scope                        = azurerm_resource_group.rg.id
-#   role_definition_name         = "Reader"
-#   principal_id                 = azurerm_user_assigned_identity.agents.principal_id
-# }
 
 resource azurerm_role_assignment system_assigned_key_vault_reader {
   scope                        = azurerm_resource_group.rg.id
@@ -50,8 +45,8 @@ resource azurerm_role_assignment system_assigned_key_vault_reader {
   principal_id                 = module.self_hosted_linux_agents.identity_object_id
 }
 
-# resource azurerm_role_assignment service_connection_resource_group_reader {
-#   scope                        = azurerm_resource_group.rg.id
-#   role_definition_name         = "Reader"
-#   principal_id                 = module.service_principal.principal_id
-# }
+resource azurerm_role_assignment service_connection_vm {
+  scope                        = azurerm_resource_group.rg.id
+  role_definition_name         = "Virtual Machine Contributor" # Start agent JIT
+  principal_id                 = module.service_principal.principal_id
+}

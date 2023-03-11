@@ -1,5 +1,6 @@
 locals {
   key_vault_name               = split("/", var.key_vault_id)[8]
+  resource_group_name          = split("/", var.key_vault_id)[4]
   pipeline_definitions         = {
     key-vault-access           = "azure-key-vault-info.yml"
   }
@@ -84,6 +85,10 @@ resource azuredevops_build_definition pipeline {
   variable {
     name                       = "keyVaultName"
     value                      = local.key_vault_name
+  }
+  variable {
+    name                       = "resourceGroupName"
+    value                      = local.resource_group_name
   }
   variable {
     name                       = "serviceConnectionName"
