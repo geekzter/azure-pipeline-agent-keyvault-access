@@ -117,15 +117,6 @@ function Login-Az (
     #         $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_VAR_backend_storage_container --as-user --auth-mode login --account-name $env:TF_VAR_backend_storage_account --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
     #     }
     # }
-
-    # Propagate token to azuredevops provider
-    Write-Verbose "Setting TF_VAR_devops_pat, so Terraform azuredevops provider can authenticate to Azure DevOps"
-    az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 `
-                                --query "accessToken" `
-                                --output tsv `
-                                | Set-Item env:TF_VAR_devops_pat
-    Write-Debug "TF_VAR_devops_pat: "
-    $env:TF_VAR_devops_pat -replace '.','*' | Write-Debug
 }
 
 function Invoke (

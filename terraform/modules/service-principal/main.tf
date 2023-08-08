@@ -3,15 +3,6 @@ data azuread_client_config current {}
 resource azuread_application app_registration {
   display_name                 = var.name
   owners                       = [var.owner_object_id]
-  sign_in_audience             = "AzureADMyOrg"
-  
-  web {
-    homepage_url               = "https://${var.name}"
-    implicit_grant {
-      access_token_issuance_enabled = false
-    }
-    redirect_uris              = ["http://${var.name}/replyignored"]
-  }
 }
 
 resource azuread_service_principal spn {
