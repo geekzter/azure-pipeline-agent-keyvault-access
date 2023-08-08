@@ -33,6 +33,16 @@ output project_url {
   value       = "${data.azuredevops_client_config.current.organization_url}/${azuredevops_project.demo_project.name}"
 }
 
+output repo_id {
+  value       = azuredevops_git_repository.demo_repo.id
+}
+output repo_name {
+  value       = azuredevops_git_repository.demo_repo.name
+}
+output repo_url {
+  value       = "${data.azuredevops_client_config.current.organization_url}/${azuredevops_project.demo_project.name}/_git/${azuredevops_git_repository.demo_repo.name}"
+}
+
 output service_connection_id {
   value       = azuredevops_serviceendpoint_azurerm.service_connection.id
 }
