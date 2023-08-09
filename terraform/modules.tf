@@ -65,7 +65,7 @@ module self_hosted_linux_agents {
   deploy_non_essential_vm_extensions = false
 
   devops_org_url               = local.devops_org_url
-  devops_pat                   = var.devops_pat
+  devops_pat                   = data.external.azdo_token.result.accessToken
 
   environment_variables        = local.environment_variables
   location                     = var.location

@@ -29,3 +29,6 @@ output outbound_ip_address {
 output virtual_network_id {
   value                        = azurerm_virtual_network.pipeline_network.id
 }
+output virtual_network_name {
+  value                        = azurerm_virtual_network.pipeline_network.name
+}

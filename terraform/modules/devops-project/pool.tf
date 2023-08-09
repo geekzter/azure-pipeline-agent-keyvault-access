@@ -12,9 +12,8 @@ resource azuredevops_agent_queue pool {
   project_id                   = azuredevops_project.demo_project.id
   agent_pool_id                = azuredevops_agent_pool.pool.id
 }
-resource azuredevops_resource_authorization pool {
+resource azuredevops_pipeline_authorization pool {
   project_id                   = azuredevops_project.demo_project.id
   resource_id                  = azuredevops_agent_queue.pool.id
   type                         = "queue"
-  authorized                   = true
 }
