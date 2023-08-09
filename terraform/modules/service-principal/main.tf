@@ -5,6 +5,15 @@ resource azuread_application app_registration {
   owners                       = [var.owner_object_id]
 }
 
+
+resource azuread_application_password secret {
+  rotate_when_changed          = {
+    rotation                   = timeadd(time_rotating.secret_expiration.id, "8760h") # One year from now
+  }
+
+  application_object_id         = azuread_application.app_registration.id
+}
+
 resource azuread_service_principal spn {
   application_id               = azuread_application.app_registration.application_id
   owners                       = [var.owner_object_id]
@@ -12,12 +21,4 @@ resource azuread_service_principal spn {
 
 resource time_rotating secret_expiration {
   rotation_years               = 1
-}
-
-resource azuread_service_principal_password spnsecret {
-  rotate_when_changed          = {
-    rotation                   = timeadd(time_rotating.secret_expiration.id, "8760h") # One year from now
-  }
-
-  service_principal_id         = azuread_service_principal.spn.id
 }

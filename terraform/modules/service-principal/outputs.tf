@@ -18,5 +18,5 @@ output principal_url {
 }
 output secret {
   sensitive   = true
-  value       = azuread_service_principal_password.spnsecret.value
+  value       = azuread_application_password.secret.value
 }
