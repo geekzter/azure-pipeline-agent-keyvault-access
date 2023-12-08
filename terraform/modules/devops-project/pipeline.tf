@@ -7,7 +7,7 @@ locals {
 }
 
 resource azuredevops_serviceendpoint_azurerm service_connection {
-  project_id                   = azuredevops_project.demo_project.id
+  project_id                   = local.project_id
   service_endpoint_name        = local.key_vault_name
   description                  = "Key Vault Variable Group managed by Terraform"
   credentials {
@@ -20,13 +20,13 @@ resource azuredevops_serviceendpoint_azurerm service_connection {
 }
 
 resource azuredevops_pipeline_authorization service_connection {
-  project_id                   = azuredevops_project.demo_project.id
+  project_id                   = local.project_id
   resource_id                  = azuredevops_serviceendpoint_azurerm.service_connection.id
   type                         = "endpoint"
 }
 
 resource azuredevops_variable_group key_vault_variable_group {
-  project_id                   = azuredevops_project.demo_project.id
+  project_id                   = local.project_id
   name                         = local.key_vault_name
   description                  = "Key Vault Variable Group managed by Terraform"
   allow_access                 = true
@@ -56,7 +56,7 @@ resource azuredevops_git_repository_file pipeline_yaml {
 }
 
 resource azuredevops_build_definition pipeline {
-  project_id                   = azuredevops_project.demo_project.id
+  project_id                   = local.project_id
   name                         = each.key
 
   ci_trigger {

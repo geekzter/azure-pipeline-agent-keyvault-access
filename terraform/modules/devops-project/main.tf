@@ -1,5 +1,16 @@
 data azuredevops_client_config current {}
 
+locals {
+  project_id                    = var.create_project ? azuredevops_project.demo_project.0.id : data.azuredevops_project.existing_project.0.id
+  project_name                  = var.create_project ? azuredevops_project.demo_project.0.name : data.azuredevops_project.existing_project.0.name
+}
+
+data azuredevops_project existing_project {
+  name                         = var.name
+
+  count                        = var.create_project ? 0 : 1
+}
+
 resource azuredevops_project demo_project {
   name                         = var.name
   work_item_template           = "Agile"
@@ -14,10 +25,12 @@ resource azuredevops_project demo_project {
     repositories               = "enabled"
     testplans                  = "disabled"
   }
+
+  count                        = var.create_project ? 1 : 0
 }
 
 resource azuredevops_git_repository demo_repo {
-  project_id                   = azuredevops_project.demo_project.id
+  project_id                   = local.project_id
   name                         = "pipelines"
   default_branch               = "refs/heads/main"
   initialization {

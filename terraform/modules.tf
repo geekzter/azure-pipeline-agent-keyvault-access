@@ -37,13 +37,14 @@ module service_principal {
   name                         = "${var.resource_prefix}-keyvault-service-connection-${terraform.workspace}-${local.suffix}"
   owner_object_id              = local.owner_object_id
 
-  count                        = var.create_devops_project ? 1 : 0
+  count                        = var.create_azdo_resources ? 1 : 0
 }
 
 module devops_project {
   source                       = "./modules/devops-project"
+  create_project               = var.devops_project != null && var.devops_project != "" ? false : true
   key_vault_id                 = module.key_vault.key_vault_id
-  name                         = "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
+  name                         = var.devops_project != null && var.devops_project != "" ? var.devops_project : "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
   service_principal_app_id     = module.service_principal.0.application_id
   service_principal_key        = module.service_principal.0.secret
   subscription_id              = data.azurerm_subscription.current.subscription_id
@@ -57,7 +58,7 @@ module devops_project {
     azurerm_role_assignment.client_key_vault_reader
   ]
 
-  count                        = var.create_devops_project ? 1 : 0
+  count                        = var.create_azdo_resources ? 1 : 0
 }
 
 module self_hosted_linux_agents {
@@ -108,5 +109,5 @@ module self_hosted_linux_agents {
     module.network
   ]
 
-  count                        = var.create_devops_project && var.create_agent ? 1 : 0
+  count                        = var.create_azdo_resources && var.create_agent ? 1 : 0
 }

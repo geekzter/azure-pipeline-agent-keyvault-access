@@ -2,8 +2,8 @@ locals {
   client_object_id_map         = merge(
     {
       user_assigned            = azurerm_user_assigned_identity.agents.principal_id
-    },var.create_devops_project ? {
-      service_connection       = var.create_devops_project ? module.service_principal.0.principal_id : null
+    },var.create_azdo_resources ? {
+      service_connection       = var.create_azdo_resources ? module.service_principal.0.principal_id : null
       # system_assigned          = module.self_hosted_linux_agents.0.identity_object_id
     } : {}
   )
@@ -46,7 +46,7 @@ resource azurerm_role_assignment system_assigned_key_vault_reader {
   role_definition_name         = "Reader"
   principal_id                 = module.self_hosted_linux_agents.0.identity_object_id
 
-  count                        = var.create_devops_project && var.create_agent ? 1 : 0
+  count                        = var.create_azdo_resources && var.create_agent ? 1 : 0
 }
 
 resource azurerm_role_assignment service_connection_vm {
@@ -54,5 +54,5 @@ resource azurerm_role_assignment service_connection_vm {
   role_definition_name         = "Virtual Machine Contributor" # Start agent JIT
   principal_id                 = module.service_principal.0.principal_id
 
-  count                        = var.create_devops_project ? 1 : 0
+  count                        = var.create_azdo_resources ? 1 : 0
 }
