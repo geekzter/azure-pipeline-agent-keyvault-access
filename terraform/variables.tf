@@ -22,9 +22,21 @@ variable bastion_tags {
   nullable                     = false
 } 
 
-variable deploy_bastion {
+variable create_agent {
+  description                  = "Deploys self-hosted Linux agent"
+  default                      = true
+  type                         = bool
+}
+
+variable create_bastion {
   description                  = "Deploys managed bastion host"
   default                      = false
+  type                         = bool
+}
+
+variable create_azdo_resources {
+  description                  = "Creates Azure DevOps project with Variable Group & Pipeline"
+  default                      = true
   type                         = bool
 }
 
@@ -37,6 +49,7 @@ variable devops_project {
   description                  = "The Azure DevOps project to authorize agent pools for. Requires 'Read & execute' permission on Build (queue a build) scope)"
   default                      = null
   nullable                     = true
+  type                         = string
 }
 variable devops_org_url {
   description                  = "The Azure DevOps organization url to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
@@ -141,6 +154,11 @@ variable use_key_vault_aad_rbac {
 
 variable user_name {
   default                      = "devopsadmin"
+}
+
+variable variable_group_variables_to_generate {
+  default                      = 1
+  type                         = number
 }
 
 variable variable_group_variables {

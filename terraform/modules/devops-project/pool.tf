@@ -9,11 +9,11 @@ resource azuredevops_agent_pool pool {
   }
 }
 resource azuredevops_agent_queue pool {
-  project_id                   = azuredevops_project.demo_project.id
+  project_id                   = local.project_id
   agent_pool_id                = azuredevops_agent_pool.pool.id
 }
 resource azuredevops_pipeline_authorization pool {
-  project_id                   = azuredevops_project.demo_project.id
+  project_id                   = local.project_id
   resource_id                  = azuredevops_agent_queue.pool.id
   type                         = "queue"
 }

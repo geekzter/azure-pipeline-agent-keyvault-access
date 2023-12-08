@@ -110,9 +110,9 @@ resource local_file verify_keyvault_remote_access_script {
     sshPrivateKey              = var.ssh_private_key
     subscriptionId             = data.azurerm_subscription.current.subscription_id
     userName                   = var.user_name
-    vmId                       = module.self_hosted_linux_agents.vm_id
+    vmId                       = var.create_azdo_resources && var.create_agent ? module.self_hosted_linux_agents.vm_id : null
   })
   filename                     = "${path.root}/../data/${terraform.workspace}/verify_keyvault_remote_access.ps1"
 
-  count                        = var.deploy_bastion ? 1 : 0
+  count                        = var.create_bastion ? 1 : 0
 }
