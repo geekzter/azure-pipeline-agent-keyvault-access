@@ -75,11 +75,31 @@ resource azurerm_key_vault_secret initial_variable {
   for_each                     = var.secrets
 }
 
+resource random_string secret {
+  length                       = 8
+  upper                        = true
+  lower                        = true
+  numeric                      = true
+  special                      = true
+  override_special             = "" 
+
+  count                        = var.generate_secrets
+}
+
+resource azurerm_key_vault_secret generated {
+  name                         = "generated-secret-${count.index}"
+  value                        = random_string.secret[count.index].result
+  key_vault_id                 = azurerm_key_vault.vault.id
+
+  count                        = var.generate_secrets
+}
+
 data azurerm_key_vault_secrets vault {
   key_vault_id                 = azurerm_key_vault.vault.id
 
   depends_on                   = [
     azurerm_key_vault.vault,
+    azurerm_key_vault_secret.generated,
     azurerm_key_vault_secret.initial_variable,
   ]
 }

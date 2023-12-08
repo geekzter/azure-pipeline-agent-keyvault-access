@@ -22,9 +22,21 @@ variable bastion_tags {
   nullable                     = false
 } 
 
-variable deploy_bastion {
+variable create_agent {
+  description                  = "Deploys self-hosted Linux agent"
+  default                      = true
+  type                         = bool
+}
+
+variable create_bastion {
   description                  = "Deploys managed bastion host"
   default                      = false
+  type                         = bool
+}
+
+variable create_devops_project {
+  description                  = "Creates Azure DevOps project with Variable Group & Pipeline"
+  default                      = true
   type                         = bool
 }
 
@@ -141,6 +153,11 @@ variable use_key_vault_aad_rbac {
 
 variable user_name {
   default                      = "devopsadmin"
+}
+
+variable variable_group_variables_to_generate {
+  default                      = 1
+  type                         = number
 }
 
 variable variable_group_variables {

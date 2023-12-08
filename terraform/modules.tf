@@ -3,6 +3,7 @@ module key_vault {
   admin_cidr_ranges            = local.admin_cidr_ranges
   client_object_ids            = [for k,v in local.client_object_id_map : v]
   enable_public_access         = var.enable_public_access
+  generate_secrets             = var.variable_group_variables_to_generate
   location                     = var.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
   private_endpoint_subnet_id   = module.network.private_endpoint_subnet_id
@@ -22,7 +23,7 @@ module network {
   address_space                = "10.201.0.0/22"
   admin_cidr_ranges            = local.admin_cidr_ranges
   bastion_tags                 = var.bastion_tags
-  deploy_bastion               = var.deploy_bastion
+  deploy_bastion               = var.create_bastion
   diagnostics_storage_id       = azurerm_storage_account.diagnostics.id
   enable_public_access         = var.enable_public_access
   location                     = var.location
@@ -35,14 +36,16 @@ module service_principal {
   source                       = "./modules/service-principal"
   name                         = "${var.resource_prefix}-keyvault-service-connection-${terraform.workspace}-${local.suffix}"
   owner_object_id              = local.owner_object_id
+
+  count                        = var.create_devops_project ? 1 : 0
 }
 
 module devops_project {
   source                       = "./modules/devops-project"
   key_vault_id                 = module.key_vault.key_vault_id
   name                         = "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
-  service_principal_app_id     = module.service_principal.application_id
-  service_principal_key        = module.service_principal.secret
+  service_principal_app_id     = module.service_principal.0.application_id
+  service_principal_key        = module.service_principal.0.secret
   subscription_id              = data.azurerm_subscription.current.subscription_id
   subscription_name            = data.azurerm_subscription.current.display_name
   tenant_id                    = data.azuread_client_config.current.tenant_id
@@ -53,6 +56,8 @@ module devops_project {
     # azurerm_role_assignment.service_connection_resource_group_reader
     azurerm_role_assignment.client_key_vault_reader
   ]
+
+  count                        = var.create_devops_project ? 1 : 0
 }
 
 module self_hosted_linux_agents {
@@ -79,7 +84,7 @@ module self_hosted_linux_agents {
   os_sku                       = var.linux_os_sku
   os_version                   = var.linux_os_version
   pipeline_agent_name          = local.pipeline_agent_name
-  pipeline_agent_pool          = module.devops_project.pool_name
+  pipeline_agent_pool          = module.devops_project.0.pool_name
   pipeline_agent_version_id    = "latest"
   storage_type                 = var.linux_storage_type
   vm_size                      = var.linux_vm_size
@@ -102,4 +107,6 @@ module self_hosted_linux_agents {
   depends_on                   = [
     module.network
   ]
+
+  count                        = var.create_devops_project && var.create_agent ? 1 : 0
 }
