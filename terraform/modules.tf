@@ -1,12 +1,12 @@
 module key_vault {
-  source                       = "./modules/key-vault"
+  source                       = "./modules/azure-key-vault"
   admin_cidr_ranges            = local.admin_cidr_ranges
   client_object_ids            = [for k,v in local.client_object_id_map : v]
   enable_public_access         = var.enable_public_access
   generate_secrets             = var.variable_group_variables_to_generate
   location                     = var.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
-  name                         = terraform.workspace == "default" ? "variablegroup${local.suffix}" : "variablegroup${terraform.workspace}${local.suffix}"
+  name                         = local.key_vault_name
   private_endpoint_subnet_id   = module.network.private_endpoint_subnet_id
   resource_group_name          = azurerm_resource_group.rg.name
   secrets                      = var.variable_group_variables
@@ -19,7 +19,7 @@ module key_vault {
 }
 
 module network {
-  source                       = "./modules/network"
+  source                       = "./modules/azure-network"
 
   address_space                = "10.201.0.0/22"
   admin_cidr_ranges            = local.admin_cidr_ranges
@@ -34,32 +34,54 @@ module network {
 }
 
 module service_principal {
-  source                       = "./modules/service-principal"
+  source                       = "./modules/entra-app-registration"
+  create_federation            = var.create_federation
+  federation_subject           = var.create_federation ? module.azure_devops_service_connection.0.service_connection_oidc_subject : null
+  issuer                       = var.create_federation ? module.azure_devops_service_connection.0.service_connection_oidc_issuer : null
+  multi_tenant                 = false
   name                         = "${var.resource_prefix}-keyvault-service-connection-${terraform.workspace}-${local.suffix}"
   owner_object_id              = local.owner_object_id
 
   count                        = var.create_azdo_resources ? 1 : 0
 }
 
-module devops_project {
-  source                       = "./modules/devops-project"
-  create_pool                  = var.create_agent
-  create_pipeline              = var.create_azdo_pipeline
+module azure_devops_project {
+  source                       = "./modules/azure-devops-project"
   create_project               = var.devops_project != null && var.devops_project != "" ? false : true
-  key_vault_id                 = module.key_vault.key_vault_id
   name                         = var.devops_project != null && var.devops_project != "" ? var.devops_project : "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
-  pipeline_name                = "key-vault-access-${terraform.workspace}-${local.suffix}"
-  repo_name                    = "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
-  service_principal_app_id     = module.service_principal.0.application_id
-  service_principal_key        = module.service_principal.0.secret
+
+  count                        = var.create_azdo_resources ? 1 : 0
+}
+
+module azure_devops_service_connection {
+  source                       = "./modules/azure-devops-service-connection"
+  application_id               = module.service_principal.0.application_id
+  application_secret           = var.create_federation ? null : module.service_principal.0.secret
+  authentication_scheme        = var.create_federation ? "WorkloadIdentityFederation" : "ServicePrincipal"
+  create_identity              = false
+  project_id                   = module.azure_devops_project.0.project_id
+  tenant_id                    = data.azuread_client_config.current.tenant_id
+  service_connection_name      = local.key_vault_name
   subscription_id              = data.azurerm_subscription.current.subscription_id
   subscription_name            = data.azurerm_subscription.current.display_name
-  tenant_id                    = data.azuread_client_config.current.tenant_id
+
+  count                        = var.create_azdo_resources ? 1 : 0
+}
+
+module azure_pipelines {
+  source                       = "./modules/azure-pipelines"
+  create_pool                  = var.create_agent
+  create_pipeline              = var.create_azdo_pipeline
+  key_vault_id                 = module.key_vault.key_vault_id
+  key_vault_service_connection_id = module.azure_devops_service_connection.0.service_connection_id
+  name                         = var.devops_project != null && var.devops_project != "" ? var.devops_project : "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
+  project_id                   = module.azure_devops_project.0.project_id
+  suffix                       = local.suffix
   variable_names               = module.key_vault.secret_names
 
   depends_on                   = [
-    # azurerm_role_assignment.client_key_vault_reader["service_connection"],
-    # azurerm_role_assignment.service_connection_resource_group_reader
+    module.azure_devops_service_connection,
+    module.service_principal,
     azurerm_role_assignment.client_key_vault_reader
   ]
 
@@ -67,7 +89,7 @@ module devops_project {
 }
 
 module self_hosted_linux_agents {
-  source                       = "./modules/self-hosted-linux-agent"
+  source                       = "./modules/azure-pipelines-agent"
 
   admin_cidr_ranges            = local.admin_cidr_ranges
 
@@ -90,7 +112,7 @@ module self_hosted_linux_agents {
   os_sku                       = var.linux_os_sku
   os_version                   = var.linux_os_version
   pipeline_agent_name          = local.pipeline_agent_name
-  pipeline_agent_pool          = module.devops_project.0.pool_name
+  pipeline_agent_pool          = module.azure_pipelines.0.pool_name
   pipeline_agent_version_id    = "latest"
   storage_type                 = var.linux_storage_type
   vm_size                      = var.linux_vm_size

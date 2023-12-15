@@ -28,14 +28,3 @@ resource azuredevops_project demo_project {
 
   count                        = var.create_project ? 1 : 0
 }
-
-resource azuredevops_git_repository demo_repo {
-  project_id                   = local.project_id
-  name                         = "keyvault-variable-group-${terraform.workspace}-${var.suffix}"
-  default_branch               = "refs/heads/main"
-  initialization {
-    init_type                  = "Clean"
-  }
-
-  count                        = var.create_pipeline ? 1 : 0
-}

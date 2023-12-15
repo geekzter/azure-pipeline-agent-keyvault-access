@@ -34,6 +34,12 @@ variable create_bastion {
   type                         = bool
 }
 
+variable create_federation {
+  description                  = "Use Workload identity federatin (OIDC) to authenticate the Variable Group Service Connection"
+  default                      = false
+  type                         = bool
+}
+
 variable create_azdo_pipeline {
   description                  = "Creates Azure Pipeline with YAML definition. Requires create_azdo_resources to be true"
   default                      = true

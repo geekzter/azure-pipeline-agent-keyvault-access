@@ -52,6 +52,12 @@ output service_connection_name {
 output service_connection_url {
   value       = "${data.azuredevops_client_config.current.organization_url}/${local.project_name}/_settings/adminservices?resourceId=${azuredevops_serviceendpoint_azurerm.service_connection.id}"
 }
+output service_connection_oidc_issuer {
+  value       = azuredevops_serviceendpoint_azurerm.service_connection.workload_identity_federation_issuer
+}
+output service_connection_oidc_subject {
+  value       = azuredevops_serviceendpoint_azurerm.service_connection.workload_identity_federation_subject
+}
 
 output variable_group_id {
   value       = azuredevops_variable_group.key_vault_variable_group.id

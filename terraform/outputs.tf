@@ -12,58 +12,58 @@ output aad_service_principal_principal_url {
 }
 
 output azdo_pipelines {
-  value       = var.create_azdo_resources ? module.devops_project.0.pipelines : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.pipelines : null
 }
 output azdo_pool_id {
-  value       = var.create_azdo_resources ? module.devops_project.0.pool_id : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.pool_id : null
 }
 output azdo_pool_name {
-  value       = var.create_azdo_resources ? module.devops_project.0.pool_name : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.pool_name : null
 }
 output azdo_pool_url {
-  value       = var.create_azdo_resources ? module.devops_project.0.pool_url : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.pool_url : null
 }
 output azdo_queue_id {
-  value       = var.create_azdo_resources ? module.devops_project.0.queue_id : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.queue_id : null
 }
 output azdo_queue_url {
-  value       = var.create_azdo_resources ? module.devops_project.0.queue_url : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.queue_url : null
 }
 output azdo_project_id {
-  value       = var.create_azdo_resources ? module.devops_project.0.project_id : null
+  value       = var.create_azdo_resources ? module.azure_devops_project.0.project_id : null
 }
 output azdo_project_name {
-  value       = var.create_azdo_resources ? module.devops_project.0.project_name : null
+  value       = var.create_azdo_resources ? module.azure_devops_project.0.project_name : null
 }
 output azdo_project_url {
-  value       = var.create_azdo_resources ? module.devops_project.0.project_url : null
+  value       = var.create_azdo_resources ? module.azure_devops_project.0.project_url : null
 }
 output azdo_repo_id {
-  value       = var.create_azdo_resources ? module.devops_project.0.repo_id : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.repo_id : null
 }
 output azdo_repo_name {
-  value       = var.create_azdo_resources ? module.devops_project.0.repo_name : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.repo_name : null
 }
 output azdo_repo_url {
-  value       = var.create_azdo_resources ? module.devops_project.0.repo_url : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.repo_url : null
 }
 output azdo_service_connection_id {
-  value       = var.create_azdo_resources ? module.devops_project.0.service_connection_id : null
+  value       = var.create_azdo_resources ? module.azure_devops_service_connection.0.service_connection_id : null
 }
 output azdo_service_connection_name {
-  value       = var.create_azdo_resources ? module.devops_project.0.service_connection_name : null
+  value       = var.create_azdo_resources ? module.azure_devops_service_connection.0.service_connection_name : null
 }
 output azdo_service_connection_url {
-  value       = var.create_azdo_resources ? module.devops_project.0.service_connection_url : null
+  value       = var.create_azdo_resources ? module.azure_devops_service_connection.0.service_connection_url : null
 }
 output azdo_variable_group_id {
-  value       = var.create_azdo_resources ? module.devops_project.0.variable_group_id : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.variable_group_id : null
 }
 output azdo_variable_group_name {
-  value       = var.create_azdo_resources ? module.devops_project.0.variable_group_name : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.variable_group_name : null
 }
 output azdo_variable_group_url {
-  value       = var.create_azdo_resources ? module.devops_project.0.variable_group_url : null
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.variable_group_url : null
 }
 output azdo_variable_group_variable_names {
   value       = var.create_azdo_resources ? module.key_vault.secret_names : null

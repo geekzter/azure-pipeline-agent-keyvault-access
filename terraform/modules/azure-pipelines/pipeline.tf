@@ -6,35 +6,15 @@ locals {
   } : {}
 }
 
-resource azuredevops_serviceendpoint_azurerm service_connection {
-  project_id                   = local.project_id
-  service_endpoint_name        = local.key_vault_name
-  description                  = "Key Vault integration managed by Terraform"
-  service_endpoint_authentication_scheme = (var.service_principal_key != null && var.service_principal_key != "") ? "ServicePrincipal" : "WorkloadIdentityFederation"
-  credentials {
-    serviceprincipalid         = var.service_principal_app_id
-    serviceprincipalkey        = var.service_principal_key
-  }
-  azurerm_spn_tenantid         = var.tenant_id
-  azurerm_subscription_id      = var.subscription_id
-  azurerm_subscription_name    = var.subscription_name
-}
-
-resource azuredevops_pipeline_authorization service_connection {
-  project_id                   = local.project_id
-  resource_id                  = azuredevops_serviceendpoint_azurerm.service_connection.id
-  type                         = "endpoint"
-}
-
 resource azuredevops_variable_group key_vault_variable_group {
-  project_id                   = local.project_id
+  project_id                   = var.project_id
   name                         = local.key_vault_name
   description                  = "Key Vault integration (${length(var.variable_names)} variables) managed by Terraform"
   allow_access                 = true
 
   key_vault {
     name                       = local.key_vault_name
-    service_endpoint_id        = azuredevops_serviceendpoint_azurerm.service_connection.id
+    service_endpoint_id        = var.key_vault_service_connection_id
   }
 
   dynamic variable {
@@ -60,7 +40,7 @@ resource azuredevops_git_repository_file pipeline_yaml {
 }
 
 resource azuredevops_build_definition pipeline {
-  project_id                   = local.project_id
+  project_id                   = var.project_id
   name                         = each.key
 
   ci_trigger {
@@ -94,7 +74,7 @@ resource azuredevops_build_definition pipeline {
   }
   variable {
     name                       = "serviceConnectionName"
-    value                      = azuredevops_serviceendpoint_azurerm.service_connection.service_endpoint_name
+    value                      = local.key_vault_name
   }
 
   for_each                     = local.pipeline_definitions

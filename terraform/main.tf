@@ -63,6 +63,7 @@ locals {
     },
     var.tags
   )
+  key_vault_name               = terraform.workspace == "default" ? "variablegroup${local.suffix}" : "variablegroup${terraform.workspace}${local.suffix}"
   owner                        = var.application_owner != "" ? var.application_owner : local.owner_object_id
   owner_object_id              = var.owner_object_id != null && var.owner_object_id != "" ? lower(var.owner_object_id) : data.azuread_client_config.current.object_id
   password                     = ".Az9${random_string.password.result}"
