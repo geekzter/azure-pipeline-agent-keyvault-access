@@ -1,5 +1,5 @@
 resource azuredevops_agent_pool pool {
-  name                         = var.name
+  name                         = var.repo_name
   auto_provision               = false
 
   lifecycle {
