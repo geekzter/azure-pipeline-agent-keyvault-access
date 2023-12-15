@@ -34,6 +34,11 @@ variable create_bastion {
   type                         = bool
 }
 
+variable create_azdo_pipeline {
+  description                  = "Creates Azure Pipeline with YAML definition. Requires create_azdo_resources to be true"
+  default                      = true
+  type                         = bool
+}
 variable create_azdo_resources {
   description                  = "Creates Azure DevOps project with Variable Group & Pipeline"
   default                      = true

@@ -31,9 +31,11 @@ resource azuredevops_project demo_project {
 
 resource azuredevops_git_repository demo_repo {
   project_id                   = local.project_id
-  name                         = "pipelines"
+  name                         = var.repo_name
   default_branch               = "refs/heads/main"
   initialization {
     init_type                  = "Clean"
   }
+
+  count                        = var.create_pipeline ? 1 : 0
 }

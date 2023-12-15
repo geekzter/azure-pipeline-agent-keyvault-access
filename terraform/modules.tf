@@ -6,6 +6,7 @@ module key_vault {
   generate_secrets             = var.variable_group_variables_to_generate
   location                     = var.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
+  name                         = terraform.workspace == "default" ? "variablegroup${local.suffix}" : "variablegroup${terraform.workspace}${local.suffix}"
   private_endpoint_subnet_id   = module.network.private_endpoint_subnet_id
   resource_group_name          = azurerm_resource_group.rg.name
   secrets                      = var.variable_group_variables
@@ -42,9 +43,13 @@ module service_principal {
 
 module devops_project {
   source                       = "./modules/devops-project"
+  create_pool                  = var.create_agent
+  create_pipeline              = var.create_azdo_pipeline
   create_project               = var.devops_project != null && var.devops_project != "" ? false : true
   key_vault_id                 = module.key_vault.key_vault_id
   name                         = var.devops_project != null && var.devops_project != "" ? var.devops_project : "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
+  pipeline_name                = "key-vault-access-${terraform.workspace}-${local.suffix}"
+  repo_name                    = "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
   service_principal_app_id     = module.service_principal.0.application_id
   service_principal_key        = module.service_principal.0.secret
   subscription_id              = data.azurerm_subscription.current.subscription_id

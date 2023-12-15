@@ -1,15 +1,15 @@
 locals {
   key_vault_name               = split("/", var.key_vault_id)[8]
   resource_group_name          = split("/", var.key_vault_id)[4]
-  pipeline_definitions         = {
-    key-vault-access           = "azure-key-vault-info.yml"
-  }
+  pipeline_definitions         = var.create_pipeline ? {
+    "${var.pipeline_name}"     = "azure-key-vault-info.yml"
+  } : {}
 }
 
 resource azuredevops_serviceendpoint_azurerm service_connection {
   project_id                   = local.project_id
   service_endpoint_name        = local.key_vault_name
-  description                  = "Key Vault Variable Group managed by Terraform"
+  description                  = "Key Vault integration managed by Terraform"
   credentials {
     serviceprincipalid         = var.service_principal_app_id
     serviceprincipalkey        = var.service_principal_key
@@ -28,7 +28,7 @@ resource azuredevops_pipeline_authorization service_connection {
 resource azuredevops_variable_group key_vault_variable_group {
   project_id                   = local.project_id
   name                         = local.key_vault_name
-  description                  = "Key Vault Variable Group managed by Terraform"
+  description                  = "Key Vault integration managed by Terraform"
   allow_access                 = true
 
   key_vault {
@@ -45,7 +45,7 @@ resource azuredevops_variable_group key_vault_variable_group {
 }
 
 resource azuredevops_git_repository_file pipeline_yaml {
-  repository_id                = azuredevops_git_repository.demo_repo.id
+  repository_id                = azuredevops_git_repository.demo_repo.0.id
   file                         = each.value
   content                      = file("${path.root}/../pipelines/${each.value}")
   branch                       = "refs/heads/main"
@@ -63,10 +63,12 @@ resource azuredevops_build_definition pipeline {
     use_yaml                   = true
   }
 
+  path                         = "\\demo"
+
   repository {
     repo_type                  = "TfsGit"
-    repo_id                    = azuredevops_git_repository.demo_repo.id
-    branch_name                = azuredevops_git_repository.demo_repo.default_branch
+    repo_id                    = azuredevops_git_repository.demo_repo.0.id
+    branch_name                = azuredevops_git_repository.demo_repo.0.default_branch
     yml_path                   = each.value
   }
 
@@ -76,7 +78,7 @@ resource azuredevops_build_definition pipeline {
 
   variable {
     name                       = "poolName"
-    value                      = azuredevops_agent_pool.pool.name
+    value                      = var.create_pool ? azuredevops_agent_pool.pool.0.name : "Azure Pipelines"
   }
   variable {
     name                       = "keyVaultId"

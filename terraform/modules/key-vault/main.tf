@@ -1,7 +1,7 @@
 data azurerm_client_config current {}
 
 resource azurerm_key_vault vault {
-  name                         = substr(lower(replace("${var.resource_group_name}-vlt","/-|a|e|i|o|u|y/","")),0,24)
+  name                         = var.name
   location                     = var.location
   resource_group_name          = var.resource_group_name
   tenant_id                    = data.azurerm_client_config.current.tenant_id

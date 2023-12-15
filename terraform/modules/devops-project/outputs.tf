@@ -8,19 +8,19 @@ output pipelines {
 }
 
 output pool_id {
-  value       = azuredevops_agent_pool.pool.id
+  value       = var.create_pool ? azuredevops_agent_pool.pool.0.id : null
 }
 output pool_name {
-  value       = azuredevops_agent_pool.pool.name
+  value       = var.create_pool ? azuredevops_agent_pool.pool.0.name : null
 }
 output pool_url {
-  value       = "${data.azuredevops_client_config.current.organization_url}/_settings/agentpools?poolId=${azuredevops_agent_pool.pool.id}&view=jobs"
+  value       = var.create_pool ? "${data.azuredevops_client_config.current.organization_url}/_settings/agentpools?poolId=${azuredevops_agent_pool.pool.0.id}&view=jobs" : null
 }
 output queue_id {
-  value       = azuredevops_agent_queue.pool.id
+  value       = var.create_pool ? azuredevops_agent_queue.pool.0.id : null
 }
 output queue_url {
-  value       = "${data.azuredevops_client_config.current.organization_url}/${local.project_name}/_settings/agentqueues?queueId=${azuredevops_agent_queue.pool.id}&view=jobs"
+  value       = var.create_pool ? "${data.azuredevops_client_config.current.organization_url}/${local.project_name}/_settings/agentqueues?queueId=${azuredevops_agent_queue.pool.0.id}&view=jobs" : null
 }
 
 output project_id {
@@ -34,13 +34,13 @@ output project_url {
 }
 
 output repo_id {
-  value       = azuredevops_git_repository.demo_repo.id
+  value       = var.create_pipeline ? azuredevops_git_repository.demo_repo.0.id : null
 }
 output repo_name {
-  value       = azuredevops_git_repository.demo_repo.name
+  value       = var.create_pipeline ? azuredevops_git_repository.demo_repo.0.name : null
 }
 output repo_url {
-  value       = "${data.azuredevops_client_config.current.organization_url}/${local.project_name}/_git/${azuredevops_git_repository.demo_repo.name}"
+  value       = var.create_pipeline ? "${data.azuredevops_client_config.current.organization_url}/${local.project_name}/_git/${azuredevops_git_repository.demo_repo.0.name}" : null
 }
 
 output service_connection_id {

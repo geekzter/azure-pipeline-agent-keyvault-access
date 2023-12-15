@@ -13,6 +13,7 @@ variable generate_secrets {
 }
 variable location {}
 variable log_analytics_workspace_resource_id {}
+variable name {}
 variable private_endpoint_subnet_id {}
 variable resource_group_name {}
 variable secrets {
