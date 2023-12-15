@@ -25,12 +25,6 @@ schedules:
     include:
     - main
 
-variables:
-- name: foo
-  value: 'bar'
-- $${{ if parameters.useVariableGroup }}: # escape the $ sign for templatefile()
-  - group: '${key_vault_name}'
-
 jobs:
 - $${{ if parameters.startAgents }}:
   - job: startAgent
@@ -52,6 +46,12 @@ jobs:
   displayName: 'Agent job'
   pool:
     name: $(poolName)
+  variables:
+  - name: foo
+    value: 'bar'
+  - $${{ if parameters.useVariableGroup }}: # escape the $ sign for templatefile()
+    - group: '${key_vault_name}'
+
   steps:
   - task: AzureCLI@2
     displayName: 'AzureCLI@2: Display Service Connection Info'
@@ -122,6 +122,11 @@ jobs:
   - job: agentLess
     displayName: 'Agentless job'
     pool: server
+    variables:
+    - name: foo
+      value: 'bar'
+    - $${{ if parameters.useVariableGroup }}: # escape the $ sign for templatefile()
+      - group: '${key_vault_name}'
     steps:
     - task: Delay@1
       displayName: 'Surrogate delay (0 minutes)'

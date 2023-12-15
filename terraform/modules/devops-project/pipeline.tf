@@ -75,10 +75,6 @@ resource azuredevops_build_definition pipeline {
     yml_path                   = each.value
   }
 
-  variable_groups              = [
-    azuredevops_variable_group.key_vault_variable_group.id
-  ]
-
   variable {
     name                       = "poolName"
     value                      = var.create_pool ? azuredevops_agent_pool.pool.0.name : "Azure Pipelines"
