@@ -76,7 +76,7 @@ resource azurerm_key_vault_secret initial_variable {
 }
 
 resource random_string secret {
-  length                       = 8
+  length                       = 32
   upper                        = true
   lower                        = true
   numeric                      = true
