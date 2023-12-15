@@ -47,11 +47,10 @@ resource azuredevops_variable_group key_vault_variable_group {
 resource azuredevops_git_repository_file pipeline_yaml {
   repository_id                = azuredevops_git_repository.demo_repo.0.id
   file                         = each.value
-  content                      = templatefile("${path.root}/../pipelines/${each.value}",
-    {
-      variable_group_name      = local.key_vault_name
-    }
-  )
+  content                      = templatefile("${path.root}/../pipelines/${each.value}", {
+    key_vault_name             = local.key_vault_name
+    start_agents               = var.create_pool ? "true" : "false"
+  })
   branch                       = "refs/heads/main"
   commit_message               = "Pipeline YAML file, commit from Terraform"
   overwrite_on_create          = false
