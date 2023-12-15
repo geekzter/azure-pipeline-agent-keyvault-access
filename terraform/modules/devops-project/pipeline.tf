@@ -28,7 +28,7 @@ resource azuredevops_pipeline_authorization service_connection {
 resource azuredevops_variable_group key_vault_variable_group {
   project_id                   = local.project_id
   name                         = local.key_vault_name
-  description                  = "Key Vault integration managed by Terraform"
+  description                  = "Key Vault integration (${length(var.variable_names)} variables) managed by Terraform"
   allow_access                 = true
 
   key_vault {
@@ -47,7 +47,11 @@ resource azuredevops_variable_group key_vault_variable_group {
 resource azuredevops_git_repository_file pipeline_yaml {
   repository_id                = azuredevops_git_repository.demo_repo.0.id
   file                         = each.value
-  content                      = file("${path.root}/../pipelines/${each.value}")
+  content                      = templatefile("${path.root}/../pipelines/${each.value}",
+    {
+      variable_group_name      = local.key_vault_name
+    }
+  )
   branch                       = "refs/heads/main"
   commit_message               = "Pipeline YAML file, commit from Terraform"
   overwrite_on_create          = false
@@ -63,7 +67,7 @@ resource azuredevops_build_definition pipeline {
     use_yaml                   = true
   }
 
-  path                         = "\\demo"
+  path                         = "\\key-vault"
 
   repository {
     repo_type                  = "TfsGit"
