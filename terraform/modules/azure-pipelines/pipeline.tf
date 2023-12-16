@@ -31,6 +31,7 @@ resource azuredevops_git_repository_file pipeline_yaml {
   content                      = templatefile("${path.root}/../pipelines/${each.value}", {
     key_vault_name             = local.key_vault_name
     start_agents               = var.create_pool ? "true" : "false"
+    use_variable_group         = var.use_variable_group ? "true" : "false"
   })
   branch                       = "refs/heads/main"
   commit_message               = "Pipeline YAML file, commit from Terraform"

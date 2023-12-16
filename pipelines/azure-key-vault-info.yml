@@ -2,7 +2,7 @@ parameters:
 - name: useVariableGroup
   displayName: Use variable group
   type: boolean
-  default: true
+  default: ${use_variable_group}
 - name: runAsPreJob
   displayName: Run pre-job task
   type: boolean

@@ -77,6 +77,7 @@ module azure_pipelines {
   name                         = var.devops_project != null && var.devops_project != "" ? var.devops_project : "keyvault-variable-group-${terraform.workspace}-${local.suffix}"
   project_id                   = module.azure_devops_project.0.project_id
   suffix                       = local.suffix
+  use_variable_group           = var.enable_public_access || var.create_agent
   variable_names               = module.key_vault.secret_names
 
   depends_on                   = [
