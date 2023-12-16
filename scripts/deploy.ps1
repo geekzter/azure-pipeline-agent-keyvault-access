@@ -87,6 +87,9 @@ try {
     }
 
     if ($Plan -or $Apply) {
+        # Enable repository
+        Get-TerraformOutput azdo_repo_rest_url | Enable-Repository
+
         # Create plan
         Invoke "terraform plan $varArgs -out='$planFile'"
     }

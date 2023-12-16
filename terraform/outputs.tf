@@ -47,6 +47,9 @@ output azdo_repo_name {
 output azdo_repo_url {
   value       = var.create_azdo_resources ? module.azure_pipelines.0.repo_url : null
 }
+output azdo_repo_rest_url {
+  value       = var.create_azdo_resources ? module.azure_pipelines.0.repo_rest_url : null
+}
 output azdo_service_connection_id {
   value       = var.create_azdo_resources ? module.azure_devops_service_connection.0.service_connection_id : null
 }

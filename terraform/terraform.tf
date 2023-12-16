@@ -8,7 +8,7 @@ terraform {
     azurerm                    = "~> 3.39"
     cloudinit                  = "~> 2.2"
     external                   = "~> 2.3"
-    http                       = "~> 2.2"
+    http                       = "~> 3.4"
     local                      = "~> 2.3"
     random                     = "~> 3.4"
     time                       = "~> 0.9"

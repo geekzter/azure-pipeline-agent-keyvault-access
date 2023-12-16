@@ -30,7 +30,10 @@ output repo_name {
   value       = var.create_pipeline ? azuredevops_git_repository.demo_repo.0.name : null
 }
 output repo_url {
-  value       = var.create_pipeline ? "${data.azuredevops_client_config.current.organization_url}/${var.project_id}/_git/${azuredevops_git_repository.demo_repo.0.name}" : null
+  value       = var.create_pipeline ? azuredevops_git_repository.demo_repo.0.web_url : null
+}
+output repo_rest_url {
+  value       = var.create_pipeline ? azuredevops_git_repository.demo_repo.0.url : null
 }
 
 output variable_group_id {
