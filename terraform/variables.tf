@@ -43,7 +43,7 @@ variable create_bastion {
 
 variable create_federation {
   description                  = "Use Workload identity federatin (OIDC) to authenticate the Variable Group Service Connection"
-  default                      = false
+  default                      = true
   type                         = bool
 }
 
@@ -60,7 +60,7 @@ variable create_azdo_resources {
 
 variable enable_public_access {
   type                         = bool
-  default                      = true
+  default                      = false
 }
 
 variable devops_project {
@@ -84,14 +84,14 @@ variable linux_os_image_id {
 }
 # az vm image list-offers -l centralus -p "Canonical" -o table
 variable linux_os_offer {
-  default                      = "0001-com-ubuntu-server-focal"
+  default                      = "0001-com-ubuntu-server-jammy"
 }
 variable linux_os_publisher {
   default                      = "Canonical"
 }
-# az vm image list-skus -l centralus -f "0001-com-ubuntu-server-focal" -p "Canonical" -o table
+# az vm image list-skus -l centralus -f "0001-com-ubuntu-server-jammy" -p "Canonical" -o table
 variable linux_os_sku {
-  default                      = "20_04-lts"
+  default                      = "22_04-lts"
 }
 variable linux_os_version {
   default                      = "latest"
