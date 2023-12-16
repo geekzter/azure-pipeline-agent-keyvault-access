@@ -34,8 +34,8 @@ locals {
   admin_cidr_ranges            = sort(distinct(concat([for range in var.admin_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
   allow_cidr_ranges            = var.allow_azure_devops_cidr_ranges ? concat(local.admin_cidr_ranges,local.azure_devops_cidr_ranges) : local.admin_cidr_ranges
   azure_devops_cidr_ranges     = [
-    # Inbound connections from Azure DevOps come from these ranges
-    # https://learn.microsoft.com/en-us/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections
+    # Public inbound connections from Azure DevOps originate from these ranges
+    # https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections
     "20.37.194.0/24",
     "20.42.226.0/24",
     "191.235.226.0/24",
@@ -52,6 +52,21 @@ locals {
     "40.80.187.0/24",
     "40.119.10.0/24",
     "40.82.252.0/24",
+
+    # ExpressRoute connections
+    # https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#azure-devops-expressroute-connections
+    "13.107.6.175/32",
+    "13.107.6.176/32",
+    "13.107.6.183/32",
+    "13.107.9.175/32",
+    "13.107.9.176/32",
+    "13.107.9.183/32",
+    "13.107.42.18/32",
+    "13.107.42.19/32",
+    "13.107.42.20/32",
+    "13.107.43.18/32",
+    "13.107.43.19/32",
+    "13.107.43.20/32",
   ]
   devops_org_url               = replace(var.devops_org_url,"/\\/$/","")
   environment_variables        = {
