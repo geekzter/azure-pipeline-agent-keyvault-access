@@ -1,6 +1,6 @@
 module key_vault {
   source                       = "./modules/azure-key-vault"
-  allow_cidr_ranges            = local.allow_cidr_ranges
+  allow_cidr_ranges            = local.allow_ip_ranges
   client_object_ids            = [for k,v in local.client_object_id_map : v]
   enable_public_access         = var.enable_public_access
   generate_secrets             = var.variable_group_variables_to_generate
@@ -22,7 +22,7 @@ module network {
   source                       = "./modules/azure-network"
 
   address_space                = "10.201.0.0/22"
-  admin_cidr_ranges            = local.admin_cidr_ranges
+  admin_cidr_ranges            = local.allow_ip_ranges
   bastion_tags                 = var.bastion_tags
   deploy_bastion               = var.create_bastion
   diagnostics_storage_id       = azurerm_storage_account.diagnostics.id
@@ -92,7 +92,7 @@ module azure_pipelines {
 module self_hosted_linux_agents {
   source                       = "./modules/azure-pipelines-agent"
 
-  admin_cidr_ranges            = local.admin_cidr_ranges
+  admin_cidr_ranges            = local.allow_ip_ranges
 
   create_public_ip_address     = false
   deploy_agent                 = true

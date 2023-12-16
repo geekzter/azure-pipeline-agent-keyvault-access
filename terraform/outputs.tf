@@ -78,8 +78,8 @@ output azdo_variable_group_variable_names {
   value       = var.create_azdo_resources ? module.key_vault.secret_names : null
 }
 
-output azure_admin_cidr_ranges {
-  value       = local.admin_cidr_ranges
+output azure_admin_ip_ranges {
+  value       = local.allow_ip_ranges
 }
 
 # output azure_agent_vm_id {
