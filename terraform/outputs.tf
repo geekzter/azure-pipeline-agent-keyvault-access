@@ -56,6 +56,12 @@ output azdo_service_connection_id {
 output azdo_service_connection_name {
   value       = var.create_azdo_resources ? module.azure_devops_service_connection.0.service_connection_name : null
 }
+output azdo_service_connection_oidc_issuer {
+  value       = var.create_azdo_resources ? module.azure_devops_service_connection.0.service_connection_oidc_issuer : null
+}
+output azdo_service_connection_oidc_subject {
+  value       = var.create_azdo_resources ? module.azure_devops_service_connection.0.service_connection_oidc_subject : null
+}
 output azdo_service_connection_url {
   value       = var.create_azdo_resources ? module.azure_devops_service_connection.0.service_connection_url : null
 }
