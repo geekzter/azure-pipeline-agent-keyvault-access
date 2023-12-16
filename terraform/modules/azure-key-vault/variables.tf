@@ -1,4 +1,4 @@
-variable admin_cidr_ranges {
+variable allow_cidr_ranges {
   type                         = list
   default                      = []
 }

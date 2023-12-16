@@ -44,9 +44,8 @@ resource azurerm_key_vault vault {
     for_each = range(var.enable_public_access ? 0 : 1)
     content {
       default_action           = "Deny"
-      bypass                   = "AzureServices"
-      ip_rules                 = var.admin_cidr_ranges
-      # ip_rules                 = concat(var.admin_cidr_ranges,["AzureDevOps"])
+      bypass                   = "None" # Azure DevOps is not included in 'AzureServices'
+      ip_rules                 = var.allow_cidr_ranges
     }
   }
 

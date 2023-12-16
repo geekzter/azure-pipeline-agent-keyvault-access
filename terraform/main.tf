@@ -32,6 +32,27 @@ resource random_string password {
 
 locals {
   admin_cidr_ranges            = sort(distinct(concat([for range in var.admin_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
+  allow_cidr_ranges            = var.allow_azure_devops_cidr_ranges ? concat(local.admin_cidr_ranges,local.azure_devops_cidr_ranges) : local.admin_cidr_ranges
+  azure_devops_cidr_ranges     = [
+    # Inbound connections from Azure DevOps come from these ranges
+    # https://learn.microsoft.com/en-us/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections
+    "20.37.194.0/24",
+    "20.42.226.0/24",
+    "191.235.226.0/24",
+    "52.228.82.0/24",
+    "20.195.68.0/24",
+    "20.41.194.0/24",
+    "20.204.197.192/26",
+    "20.37.158.0/23",
+    "52.150.138.0/24",
+    "40.80.187.0/24",
+    "40.119.10.0/24",
+    "20.42.5.0/24",
+    "20.41.6.0/23",
+    "40.80.187.0/24",
+    "40.119.10.0/24",
+    "40.82.252.0/24",
+  ]
   devops_org_url               = replace(var.devops_org_url,"/\\/$/","")
   environment_variables        = {
     PIPELINE_DEMO_AGENT_LOCATION           = var.location

@@ -3,6 +3,13 @@ variable admin_ip_ranges {
   type                         = list
 }
 
+variable allow_azure_devops_cidr_ranges {
+  # Inbound connections from Azure DevOps come from these ranges
+  # https://learn.microsoft.com/en-us/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections
+  default                      = true
+  type                         = bool
+}
+
 variable application_name {
   description                  = "Value of 'application' resource tag"
   default                      = "Key Vault Variable Group"
