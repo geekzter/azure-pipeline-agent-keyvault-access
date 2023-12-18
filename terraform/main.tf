@@ -31,11 +31,11 @@ resource random_string password {
 }
 
 locals {
-  geography_ip_ranges          = local.geographies[lower(var.azdo_geography)]
-  allow_ip_ranges              = sort(distinct(concat([for range in local.geography_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
-  devops_org_url               = replace(var.devops_org_url,"/\\/$/","")
+  allow_ip_ranges              = sort(distinct(concat([for range in local.azdo_geography_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
+  azdo_org_url                 = replace(var.azdo_org_url,"/\\/$/","")
+  azdo_geography_ip_ranges     = var.azdo_geography != null ? local.geographies[lower(var.azdo_geography)] : flatten(values(local.geographies))
   environment_variables        = {
-    PIPELINE_DEMO_AGENT_LOCATION           = var.location
+    PIPELINE_DEMO_AGENT_LOCATION           = var.azure_location
     PIPELINE_DEMO_AGENT_OUTBOUND_IP        = module.network.outbound_ip_address
     PIPELINE_DEMO_AGENT_SUBNET_ID          = module.network.self_hosted_agents_subnet_id
     PIPELINE_DEMO_AGENT_VIRTUAL_NETWORK_ID = module.network.virtual_network_id
@@ -62,7 +62,7 @@ locals {
       suffix                   = local.initial_suffix
       workspace                = terraform.workspace
     },
-    var.tags
+    var.azure_tags
   )
   key_vault_name               = terraform.workspace == "default" ? "variablegroup${local.suffix}" : "variablegroup${terraform.workspace}${local.suffix}"
   owner                        = var.application_owner != "" ? var.application_owner : local.owner_object_id
@@ -77,7 +77,7 @@ locals {
 
 resource azurerm_resource_group rg {
   name                         = terraform.workspace == "default" ? "${var.resource_prefix}-private-keyvault-${local.initial_suffix}" : "${var.resource_prefix}-${terraform.workspace}-keyvault-variable-group-${local.initial_suffix}"
-  location                     = var.location
+  location                     = var.azure_location
 
   tags                         = local.initial_tags
 
@@ -109,12 +109,12 @@ resource local_file verify_keyvault_remote_access_script {
     identityObjectId           = azurerm_user_assigned_identity.agents.principal_id
     keyVaultName               = module.key_vault.key_vault_name
     resourceGroup              = azurerm_resource_group.rg.name
-    sshPrivateKey              = var.ssh_private_key
+    sshPrivateKey              = var.azure_agent_ssh_private_key
     subscriptionId             = data.azurerm_subscription.current.subscription_id
-    userName                   = var.user_name
+    userName                   = var.azure_agent_user_name
     vmId                       = var.create_azdo_resources && var.create_agent ? module.self_hosted_linux_agents.vm_id : null
   })
   filename                     = "${path.root}/../data/${terraform.workspace}/verify_keyvault_remote_access.ps1"
 
-  count                        = var.create_bastion ? 1 : 0
+  count                        = var.create_azure_bastion ? 1 : 0
 }

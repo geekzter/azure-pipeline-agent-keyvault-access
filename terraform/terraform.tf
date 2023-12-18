@@ -25,7 +25,7 @@ data external azdo_token {
   ]
 }
 provider azuredevops {
-  org_service_url              = local.devops_org_url
+  org_service_url              = local.azdo_org_url
   personal_access_token        = data.external.azdo_token.result.accessToken
 }
 provider azurerm {

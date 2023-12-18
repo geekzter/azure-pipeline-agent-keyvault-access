@@ -10,34 +10,108 @@ variable application_owner {
 }
 
 variable azdo_geography {
-  description                  = "The Azure DevOps geography the organization is (see https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections)"
-  nullable                     = false
-
+  description                  = "The geography the Azure DevOps organization is in (see https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections)"
+  default                      = null # null means all geographies
+  type                         = string
   validation {
     condition                  = contains(
       [
+        "asiapacific",
         "australia", 
         "brazil", 
         "canada", 
-        "asiapacific",
-        "india",
         "europe",
+        "india",
         "uk",
         "us",
-        "expressroute",
+        "expressroute"
       ],
-      var.azdo_geography
+      coalesce(var.azdo_geography,"expressroute")
     )
-    error_message              = "geography is not valid"
+    error_message              = "geography is not a valid Azure DevOps geography"
   }
 }
+variable azdo_project {
+  description                  = "The Azure DevOps project to authorize agent pools for. Requires 'Read & execute' permission on Build (queue a build) scope)"
+  default                      = null
+  nullable                     = true
+  type                         = string
+}
+variable azdo_org_url {
+  description                  = "The Azure DevOps organization url to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
+  nullable                     = false
+}
+variable azdo_variable_group_variables {
+  type                         = map
+  default = {
+    initial-variable1          = "test"
+  }  
+} 
+variable azdo_variable_group_variables_to_generate {
+  default                      = 1
+  description                  = "Generate variables for testing purposes"
+  type                         = number
+}
 
-variable bastion_tags {
+variable azure_agent_linux_tools {
+  default                      = false
+  type                         = bool
+}
+variable azure_agent_linux_os_image_id {
+  default                      = null
+}
+# az vm image list-offers -l centralus -p "Canonical" -o table
+variable azure_agent_linux_os_offer {
+  default                      = "0001-com-ubuntu-server-jammy"
+}
+variable azure_agent_linux_os_publisher {
+  default                      = "Canonical"
+}
+# az vm image list-skus -l centralus -f "0001-com-ubuntu-server-jammy" -p "Canonical" -o table
+variable azure_agent_linux_os_sku {
+  default                      = "22_04-lts"
+}
+variable azure_agent_linux_os_version {
+  default                      = "latest"
+}
+variable azure_agent_linux_storage_type {
+  default                      = "Standard_LRS"
+}
+variable azure_agent_linux_vm_size {
+  default                      = "Standard_D2s_v3"
+}
+variable azure_agent_ssh_private_key {
+  default                      = "~/.ssh/id_rsa"
+}
+variable azure_agent_ssh_public_key {
+  default                      = "~/.ssh/id_rsa.pub"
+}
+variable azure_agent_user_name {
+  default                      = "devopsadmin"
+}
+
+variable azure_bastion_tags {
   description                  = "A map of the tags to use for the bastion resources that are deployed"
   type                         = map
 
   default                      = {}  
   nullable                     = false
+} 
+variable azure_location {
+  default                      = "westeurope"
+  nullable                     = false
+}
+variable azure_log_analytics_workspace_id {
+  description                  = "Specify a pre-existing Log Analytics workspace"
+  default                      = ""
+}
+variable azure_tags {
+  description                  = "A map of the tags to use for the ARM resources that are deployed"
+  type                         = map
+  nullable                     = false
+
+  default                      = {
+  }  
 } 
 
 variable create_agent {
@@ -46,18 +120,7 @@ variable create_agent {
   type                         = bool
 }
 
-variable create_bastion {
-  description                  = "Deploys managed bastion host"
-  default                      = false
-  type                         = bool
-}
-
-variable create_federation {
-  description                  = "Use Workload identity federatin (OIDC) to authenticate the Variable Group Service Connection"
-  default                      = true
-  type                         = bool
-}
-
+# Switches that determine what infrastucture components are provisioned
 variable create_azdo_pipeline {
   description                  = "Creates Azure Pipeline with YAML definition. Requires create_azdo_resources to be true"
   default                      = true
@@ -68,60 +131,19 @@ variable create_azdo_resources {
   default                      = true
   type                         = bool
 }
-
-variable enable_public_access {
-  type                         = bool
-  default                      = false
-}
-
-variable devops_project {
-  description                  = "The Azure DevOps project to authorize agent pools for. Requires 'Read & execute' permission on Build (queue a build) scope)"
-  default                      = null
-  nullable                     = true
-  type                         = string
-}
-variable devops_org_url {
-  description                  = "The Azure DevOps organization url to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
-  nullable                     = false
-}
-
-variable linux_tools {
+variable create_azure_bastion {
+  description                  = "Deploys managed bastion host"
   default                      = false
   type                         = bool
 }
-
-variable linux_os_image_id {
-  default                      = null
+variable create_entra_federation {
+  description                  = "Use Workload identity federation (OIDC) to authenticate the Variable Group Service Connection"
+  default                      = true
+  type                         = bool
 }
-# az vm image list-offers -l centralus -p "Canonical" -o table
-variable linux_os_offer {
-  default                      = "0001-com-ubuntu-server-jammy"
-}
-variable linux_os_publisher {
-  default                      = "Canonical"
-}
-# az vm image list-skus -l centralus -f "0001-com-ubuntu-server-jammy" -p "Canonical" -o table
-variable linux_os_sku {
-  default                      = "22_04-lts"
-}
-variable linux_os_version {
-  default                      = "latest"
-}
-variable linux_storage_type {
-  default                      = "Standard_LRS"
-}
-variable linux_vm_size {
-  default                      = "Standard_D2s_v3"
-}
-
-variable location {
-  default                      = "westeurope"
-  nullable                     = false
-}
-
-variable log_analytics_workspace_id {
-  description                  = "Specify a pre-existing Log Analytics workspace. The workspace needs to have the Security, SecurityCenterFree, ServiceMap, Updates, VMInsights solutions provisioned"
-  default                      = ""
+variable enable_azure_key_vault_public_access {
+  type                         = bool
+  default                      = false
 }
 
 variable owner_object_id {
@@ -155,45 +177,12 @@ variable shutdown_time {
   description                  = "Time the self-hosyted will be stopped daily. Setting this to null or an empty string disables auto shutdown."
 }
 
-variable ssh_private_key {
-  default                      = "~/.ssh/id_rsa"
-}
-variable ssh_public_key {
-  default                      = "~/.ssh/id_rsa.pub"
-}
-
-variable tags {
-  description                  = "A map of the tags to use for the ARM resources that are deployed"
-  type                         = map
-  nullable                     = false
-
-  default                      = {
-  }  
-} 
-
 variable timezone {
   default                      = "W. Europe Standard Time"
 }
 
-variable use_key_vault_aad_rbac {
+variable use_azure_key_vault_aad_rbac {
   description                  = "Whether to use Key Vault AAD RBAC to grant access to the Key Vault, or use access policies instead"
   type                         = bool
   default                      = false
 }
-
-variable user_name {
-  default                      = "devopsadmin"
-}
-
-variable variable_group_variables_to_generate {
-  default                      = 1
-  type                         = number
-}
-
-variable variable_group_variables {
-  type                         = map
-  default = {
-    initial-variable1          = "test"
-    # initial-variable2          = "test"
-  }  
-} 
