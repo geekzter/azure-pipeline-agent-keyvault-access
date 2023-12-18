@@ -1,53 +1,3 @@
-variable allow_ip_ranges {
-  default                      = [
-    # Public inbound connections from Azure DevOps originate from these ranges
-    # https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections
-    "20.37.194.0/24",    # Australia East
-    "20.42.226.0/24",    # Australia South East
-
-    "191.235.226.0/24",  # Brazil South
-
-    "52.228.82.0/24",    # Central Canada
-
-    "20.195.68.0/24",    # Southeast Asia
-
-    "20.41.194.0/24",    # South India
-    "20.204.197.192/26", # Central India
-
-    "20.37.158.0/23",    # Central US
-    "52.150.138.0/24",   # West Central US
-    "40.80.187.0/24",    # North Central US
-    "40.119.10.0/24",    # South Central US
-    "20.42.5.0/24",      # East US
-    "20.41.6.0/23",      # East 2 US
-    "40.80.187.0/24",    # North US
-    "40.119.10.0/24",    # South US
-    "40.82.252.0/24",    # West US
-    "20.42.134.0/23",    # West 2 US
-    "20.125.155.0/24",   # West 3 US
-
-    "40.74.28.0/23",     # West Europe
-    "20.166.41.0/24",    # North Europe
-    "51.104.26.0/24",    # UK South
-
-    # ExpressRoute connections
-    # https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#azure-devops-expressroute-connections
-    "13.107.6.175/32",
-    "13.107.6.176/32",
-    "13.107.6.183/32",
-    "13.107.9.175/32",
-    "13.107.9.176/32",
-    "13.107.9.183/32",
-    "13.107.42.18/32",
-    "13.107.42.19/32",
-    "13.107.42.20/32",
-    "13.107.43.18/32",
-    "13.107.43.19/32",
-    "13.107.43.20/32",
-  ]
-  type                         = list
-}
-
 variable application_name {
   description                  = "Value of 'application' resource tag"
   default                      = "Key Vault Variable Group"
@@ -57,6 +7,29 @@ variable application_owner {
   description                  = "Value of 'owner' resource tag"
   default                      = "" # Empty string takes objectId of current user
   nullable                     = false
+}
+
+variable azdo_geography {
+  description                  = "The Azure DevOps geography the organization is (see https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections)"
+  nullable                     = false
+
+  validation {
+    condition                  = contains(
+      [
+        "australia", 
+        "brazil", 
+        "canada", 
+        "asiapacific",
+        "india",
+        "europe",
+        "uk",
+        "us",
+        "expressroute",
+      ],
+      var.azdo_geography
+    )
+    error_message              = "geography is not valid"
+  }
 }
 
 variable bastion_tags {

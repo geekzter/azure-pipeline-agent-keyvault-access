@@ -31,7 +31,8 @@ resource random_string password {
 }
 
 locals {
-  allow_ip_ranges              = sort(distinct(concat([for range in var.allow_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
+  geography_ip_ranges          = local.geographies[lower(var.azdo_geography)]
+  allow_ip_ranges              = sort(distinct(concat([for range in local.geography_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
   devops_org_url               = replace(var.devops_org_url,"/\\/$/","")
   environment_variables        = {
     PIPELINE_DEMO_AGENT_LOCATION           = var.location
