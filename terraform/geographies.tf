@@ -1,7 +1,7 @@
 locals {
 # Public inbound connections from Azure DevOps originate from these ranges
 # https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections
-  geographies                = {
+  geographies                  = {
     australia                  = [
       "20.37.194.0/24",        # Australia East
       "20.42.226.0/24",        # Australia South East
