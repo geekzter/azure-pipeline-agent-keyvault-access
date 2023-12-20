@@ -1,8 +1,8 @@
 # Sourcing Azure Pipeline variables from a private Azure Key Vault
 
-This repo demonstrates how to configure a Key Vault for private access. That is, selectively allow access to from Azure DevOps and your Self-hosted agents to your Key Vault. 
+This repo demonstrates how to configure a Variable Group integrated Key Vault for private access. That is, selectively allow access from Azure DevOps and your Self-hosted agents to your Key Vault. 
 
-The key components to allow access to an Azure Key Vault are explained below. You can also provision a private Key Vault, Self-hosted agent and a Azure DevOps project with pipeline using Terraform, see [deployment](deployment.md).
+The key components to allow access to an Azure Key Vault are explained below. You can also provision a sample private Key Vault, Self-hosted agent and a Azure DevOps project with pipeline with Terraform, see [deployment](deployment.md).
 
 <p align="center">
 <img src="visuals/overview.png" width="596">
@@ -17,13 +17,13 @@ Azure Pipelines provides the ability to [integrate an Azure Key Vault with Varia
 
 ### 1. Configure inbound access from Azure DevOps
 
-To allow access from Azure DevOps, you need to allow access from static ranges. These ranges depend on the geography your Azure DevOps organization is in. To find the [geography](https://learn.microsoft.com/azure/devops/organizations/security/data-protection?view=azure-devops#data-residency-and-sovereignty) used by your Azure DevOps organization follow [this instruction](https://learn.microsoft.com/azure/devops/organizations/accounts/change-organization-location?view=azure-devops#find-your-organization-geography). Use [this page](https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections) to find the IP ranges for your geography. [This article](https://learn.microsoft.com/azure/key-vault/general/network-security#key-vault-firewall-enabled-ipv4-addresses-and-ranges---static-ips) explains how to configure Key Vault to allow access from static IP ranges.
+To allow access from Azure DevOps, you need to allow access from static ranges that are published. These ranges depend on the geography your Azure DevOps organization is in. To find the [geography](https://learn.microsoft.com/azure/devops/organizations/security/data-protection?view=azure-devops#data-residency-and-sovereignty) used by your Azure DevOps organization follow [this instruction](https://learn.microsoft.com/azure/devops/organizations/accounts/change-organization-location?view=azure-devops#find-your-organization-geography). [This page](https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections) publishes the IP ranges for your geography. [This article](https://learn.microsoft.com/azure/key-vault/general/network-security#key-vault-firewall-enabled-ipv4-addresses-and-ranges---static-ips) explains how to configure Key Vault to allow access from static IP ranges.
 
 ### 2. Configure inbound access from Self-hosted Agents
 
 To have the ability to access a private Key Vault from an Azure Pipelines agent, you'll need to use a Self-hosted or Scale set agent. Microsoft Hosted agents are not in the Key Vault [trusted services list](https://learn.microsoft.com/azure/key-vault/general/overview-vnet-service-endpoints#trusted-services) (no generic compute service is).
 
-To provide [line of sight](https://learn.microsoft.com/azure/devops/pipelines/agents/agents?view=azure-devops&tabs=yaml%2Cbrowser#communication-to-deploy-to-target-servers) to a Key Vault, you need to configure a [private endpoint](https://learn.microsoft.com/azure/key-vault/general/private-link-service?tabs=portal) for the Key Vault. This private endpoint needs to be routable (and its Private DNS name resolvable) from the Self-hosted Pipeline agent.
+To provide [line of sight](https://learn.microsoft.com/azure/devops/pipelines/agents/agents?view=azure-devops&tabs=yaml%2Cbrowser#communication-to-deploy-to-target-servers) to a Key Vault, you need to configure a [private endpoint](https://learn.microsoft.com/azure/key-vault/general/private-link-service?tabs=portal) for the Key Vault. This private endpoint needs to be routable (and its private DNS name resolvable) from the Self-hosted Pipeline agent.
 
 ## Run the KeyVault task pre-job
 
@@ -42,7 +42,7 @@ If you omit granting Azure DevOps inbound access to your private Key Vault, Vari
 
 This will inject the KeyVault task before your tasks run, the same way as a Variable Group would.
 
-### Key Vault Firewall messages
+## Key Vault Firewall messages
 
 The below messages mean the Azure Key Vault firewall blocks access:
 
@@ -57,10 +57,10 @@ Request was not allowed by NSP rules and the client address is not authorized an
 Client address: <x.x.x.x>
 ```
 
-Public access has been enabled. The client IP address has not been added to the Key Vault firewall.
+Public access has been enabled but the client IP address has not been added to the Key Vault firewall.
 
 ```
 TF400898: An Internal Error Occurred. Activity Id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
 ```
 
-This error can occur when adding a Key Vault has Variable Group and Azure DevOps has not been allowed inbound access.
+This error can occur when adding a Key Vault as Variable Group and Azure DevOps has not been allowed inbound sufficient access.
