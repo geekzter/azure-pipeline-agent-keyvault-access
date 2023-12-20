@@ -1,33 +1,29 @@
 # Sourcing Azure Pipeline variables from a private Azure Key Vault
 
-This repo demonstrates how to configure a Key Vault for private access. That is, constrain access to Azure devOps and your Self-hosted agents. It uses Terraform with the [azuread](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs), [azuredevops](https://registry.terraform.io/providers/microsoft/azuredevops/latest/docs) and [azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs) providers to create an end-to-end sample.
+This repo demonstrates how to configure a Key Vault for private access. That is, selectively allow access to from Azure DevOps and your Self-hosted agents to your Key Vault. 
 
-Below, the key elements to allow access to an Azure Key Vault are explained.
+The key components to allow access to an Azure Key Vault are explained below. You can also provision a private Key Vault, Self-hosted agent and a Azure DevOps project with pipeline using Terraform, see [deployment](deployment.md).
+
+<p align="center">
+<img src="visuals/overview.png" width="596">
+</p>
 
 ## Link an Azure Pipelines Variable Group to a private Azure Key Vault
 
 Azure Pipelines provides the ability to [integrate an Azure Key Vault with Variable Groups](https://learn.microsoft.com/azure/devops/pipelines/library/variable-groups?view=azure-devops&tabs=yaml#link-secrets-from-an-azure-key-vault). A Key Vault that is used as a Variable Group can be accessed:
 
-- From Azure DevOps, during Variable Group configuration time
-- From a Self-hosted agent, during Pipeline job runtime
+1. From Azure DevOps, during Variable Group configuration time
+2. From a Self-hosted agent, during Pipeline job runtime
 
-### Configure inbound access from Azure DevOps
+### 1. Configure inbound access from Azure DevOps
 
-[This page](https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections) lists IP ranges for Azure DevOps geographies. You can find the [geography](https://learn.microsoft.com/azure/devops/organizations/security/data-protection?view=azure-devops#data-residency-and-sovereignty) used by your Azure DevOps organization using [this instruction](https://learn.microsoft.com/azure/devops/organizations/accounts/change-organization-location?view=azure-devops#find-your-organization-geography).
+To allow access from Azure DevOps, you need to allow access from static ranges. These ranges depend on the geography your Azure DevOps organization is in. To find the [geography](https://learn.microsoft.com/azure/devops/organizations/security/data-protection?view=azure-devops#data-residency-and-sovereignty) used by your Azure DevOps organization follow [this instruction](https://learn.microsoft.com/azure/devops/organizations/accounts/change-organization-location?view=azure-devops#find-your-organization-geography). Use [this page](https://learn.microsoft.com/azure/devops/organizations/security/allow-list-ip-url?view=azure-devops&tabs=IP-V4#inbound-connections) to find the IP ranges for your geography. [This article](https://learn.microsoft.com/azure/key-vault/general/network-security#key-vault-firewall-enabled-ipv4-addresses-and-ranges---static-ips) explains how to configure Key Vault to allow access from static IP ranges.
 
-By default, this repo will allow inbound access from all Azure DevOps geographies (including ExpressRoute). To override the default and constrain inbound access to a single geography, specify:
-
-```hcl
-azdo_geography = 'us' 
-```
-
-See [variables.tf](terraform/variables.tf) for a list of possible Terraform variables.
-
-### Configure inbound access from Self-hosted Agents
+### 2. Configure inbound access from Self-hosted Agents
 
 To have the ability to access a private Key Vault from an Azure Pipelines agent, you'll need to use a Self-hosted or Scale set agent. Microsoft Hosted agents are not in the Key Vault [trusted services list](https://learn.microsoft.com/azure/key-vault/general/overview-vnet-service-endpoints#trusted-services) (no generic compute service is).
 
-To provide [line of sight](https://learn.microsoft.com/azure/devops/pipelines/agents/agents?view=azure-devops&tabs=yaml%2Cbrowser#communication-to-deploy-to-target-servers) to a Key Vault. You need to configure a [private endpoint](https://learn.microsoft.com/azure/key-vault/general/private-link-service?tabs=portal) for the Key Vault.
+To provide [line of sight](https://learn.microsoft.com/azure/devops/pipelines/agents/agents?view=azure-devops&tabs=yaml%2Cbrowser#communication-to-deploy-to-target-servers) to a Key Vault, you need to configure a [private endpoint](https://learn.microsoft.com/azure/key-vault/general/private-link-service?tabs=portal) for the Key Vault. This private endpoint needs to be routable (and its Private DNS name resolvable) from the Self-hosted Pipeline agent.
 
 ## Run the KeyVault task pre-job
 
