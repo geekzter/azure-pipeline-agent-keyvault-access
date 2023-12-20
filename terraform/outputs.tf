@@ -70,7 +70,7 @@ output azure_admin_ip_ranges {
 }
 
 output azure_agent_vm_id {
-  value       = var.create_azdo_resources && var.create_agent ? module.self_hosted_linux_agents.vm_id : null
+  value       = var.create_azdo_resources && var.create_agent ? module.self_hosted_linux_agents.0.vm_id : null
 }
 output azure_agent_vm_url {
   value       = var.create_azdo_resources && var.create_agent ? "https://portal.azure.com/#@${data.azurerm_subscription.current.tenant_id}/resource${module.self_hosted_linux_agents.0.vm_id}/overview" : null
