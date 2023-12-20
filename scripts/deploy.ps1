@@ -72,7 +72,7 @@ try {
     if ($Plan -or $Apply -or $Destroy) {
         Login-Az -DisplayMessages
 
-        $resourceGroup = (Get-TerraformOutput resource_group_name)
+        $resourceGroup = (Get-TerraformOutput azure_resource_group_name)
         if ($resourceGroup) {
             Invoke-Command -ScriptBlock {
                 $Private:ErrorActionPreference = "Continue"
@@ -84,6 +84,9 @@ try {
                 }
             }
         }        
+
+        # Enable repository
+        Get-TerraformOutput azdo_repo_rest_url | Enable-Repository
     }
 
     if ($Plan -or $Apply) {

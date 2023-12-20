@@ -1,7 +1,7 @@
 data azurerm_client_config current {}
 
 resource azurerm_key_vault vault {
-  name                         = substr(lower(replace("${var.resource_group_name}-vlt","/-|a|e|i|o|u|y/","")),0,24)
+  name                         = var.name
   location                     = var.location
   resource_group_name          = var.resource_group_name
   tenant_id                    = data.azurerm_client_config.current.tenant_id
@@ -44,9 +44,8 @@ resource azurerm_key_vault vault {
     for_each = range(var.enable_public_access ? 0 : 1)
     content {
       default_action           = "Deny"
-      bypass                   = "AzureServices"
-      ip_rules                 = var.admin_cidr_ranges
-      # ip_rules                 = concat(var.admin_cidr_ranges,["AzureDevOps"])
+      bypass                   = "None" # Azure DevOps is not included in 'AzureServices'
+      ip_rules                 = var.allow_cidr_ranges
     }
   }
 
@@ -76,7 +75,7 @@ resource azurerm_key_vault_secret initial_variable {
 }
 
 resource random_string secret {
-  length                       = 8
+  length                       = 32
   upper                        = true
   lower                        = true
   numeric                      = true

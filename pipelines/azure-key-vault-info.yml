@@ -1,3 +1,21 @@
+parameters:
+- name: useVariableGroup
+  displayName: Use variable group
+  type: boolean
+  default: ${use_variable_group}
+- name: runAsPreJob
+  displayName: Run pre-job task
+  type: boolean
+  default: false
+- name: startAgents
+  displayName: Start agents
+  type: boolean
+  default: ${start_agents}
+- name: agentLessJob
+  displayName: Run agentless job
+  type: boolean
+  default: false
+  
 trigger: none
 schedules:
 - cron: '0 12 * * Fri'
@@ -8,24 +26,32 @@ schedules:
     - main
 
 jobs:
-- job: startAgent
-  displayName: 'Start Agent'
-  pool:
-    name: 'Azure Pipelines'
-    vmImage: ubuntu-latest
-  steps:
-  - task: AzureResourceGroupDeployment@2
-    displayName: 'Start agents in resource group'
-    inputs:
-      azureSubscription: '$(serviceConnectionName)'
-      action: 'Start'
-      resourceGroupName: '$(resourceGroupName)'
+- $${{ if parameters.startAgents }}:
+  - job: startAgent
+    displayName: 'Start Agent'
+    pool:
+      name: 'Azure Pipelines'
+      vmImage: ubuntu-latest
+    steps:
+    - task: AzureResourceGroupDeployment@2
+      displayName: 'Start agents in resource group'
+      inputs:
+        azureSubscription: '$(serviceConnectionName)'
+        action: 'Start'
+        resourceGroupName: '$(resourceGroupName)'
 
 - job: agent
-  dependsOn: startAgent
-  displayName: 'Access Key Vault'
+  $${{ if parameters.startAgents }}:
+    dependsOn: startAgent
+  displayName: 'Agent job'
   pool:
     name: $(poolName)
+  variables:
+  - name: foo
+    value: 'bar'
+  - $${{ if parameters.useVariableGroup }}: # escape the $ sign for templatefile()
+    - group: '${key_vault_name}'
+
   steps:
   - task: AzureCLI@2
     displayName: 'AzureCLI@2: Display Service Connection Info'
@@ -81,21 +107,28 @@ jobs:
       workingDirectory: '$(Build.ArtifactStagingDirectory)'
 
   - task: AzureKeyVault@2
-    displayName: 'AzureKeyVault@2: Access Key Vault'
+    displayName: 'AzureKeyVault@2: Access Key Vault (runAsPreJob: $${{ parameters.runAsPreJob }})'
     inputs:
       azureSubscription: '$(serviceConnectionName)'
       keyVaultName: $(keyVaultName)
       secretsFilter: '*'
-      runAsPreJob: false
-
-  - task: AzureKeyVault@2
-    displayName: 'AzureKeyVault@2: Access Key Vault (pre-job)'
-    inputs:
-      azureSubscription: '$(serviceConnectionName)'
-      keyVaultName: $(keyVaultName)
-      secretsFilter: '*'
-      runAsPreJob: true
+      runAsPreJob: $${{ parameters.runAsPreJob }}
 
   - publish: $(Build.ArtifactStagingDirectory)
     displayName: 'Publish json files'
     artifact: indentityInfo
+
+- $${{ if parameters.agentLessJob }}:
+  - job: agentLess
+    displayName: 'Agentless job'
+    pool: server
+    variables:
+    - name: foo
+      value: 'bar'
+    - $${{ if parameters.useVariableGroup }}: # escape the $ sign for templatefile()
+      - group: '${key_vault_name}'
+    steps:
+    - task: Delay@1
+      displayName: 'Surrogate delay (0 minutes)'
+      inputs:
+        delayForMinutes: 0

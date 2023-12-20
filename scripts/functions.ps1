@@ -1,3 +1,4 @@
+$apiVersion = "7.1"
 function Configure-TerraformWorkspace (
     [parameter(Mandatory=$true)]
     [string]
@@ -23,6 +24,34 @@ function Configure-TerraformWorkspace (
             }
         } else {
             Write-Verbose "No matches"
+        }
+    }
+}
+
+function Enable-Repository (    
+    [parameter(Mandatory=$true,ValueFromPipeline=$true)]
+    [string]
+    $RepositoryRestUrl
+) {
+    if (!$RepositoryRestUrl) {
+        Write-Verbose "No repository URL specified, skipping repository enablement"
+        return
+    }
+    Write-Verbose "Enabling repository..."
+    Write-Debug $RepositoryRestUrl
+    az rest --method PATCH `
+            --url "${RepositoryRestUrl}?api-version=${apiVersion}" `
+            --resource 499b84ac-1321-427f-aa17-267ca6975798 `
+            --body '{"isDisabled": false}' `
+            --query isDisabled `
+            -o none 2>&1 `
+            | Out-String `
+            | Set-Variable apiError
+    if ($apiError) {  
+        if ($apiError -match "The repository change is not supported") { 
+            Write-Verbose "Repository is already enabled" 
+        } else {
+            Write-Warning "Failed to enable repository:`n$apiError"
         }
     }
 }

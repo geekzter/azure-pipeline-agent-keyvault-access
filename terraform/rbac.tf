@@ -30,7 +30,7 @@ resource azurerm_role_assignment client_key_vault_data_reader {
   role_definition_name         = "Key Vault Secrets User"
   principal_id                 = each.value
 
-  for_each                     = var.use_key_vault_aad_rbac ? local.client_object_id_map : {}
+  for_each                     = var.use_azure_key_vault_aad_rbac ? local.client_object_id_map : {}
 }
 
 resource azurerm_role_assignment terraform_key_vault_data_access {
@@ -38,7 +38,7 @@ resource azurerm_role_assignment terraform_key_vault_data_access {
   role_definition_name         = "Key Vault Secrets Officer"
   principal_id                 = data.azuread_client_config.current.object_id 
 
-  count                        = var.use_key_vault_aad_rbac ? 1 : 0
+  count                        = var.use_azure_key_vault_aad_rbac ? 1 : 0
 }
 
 resource azurerm_role_assignment system_assigned_key_vault_reader {
