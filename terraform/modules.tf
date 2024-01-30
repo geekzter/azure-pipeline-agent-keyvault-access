@@ -2,12 +2,13 @@ module key_vault {
   source                       = "./modules/azure-key-vault"
   allow_cidr_ranges            = local.allow_ip_ranges
   client_object_ids            = [for k,v in local.client_object_id_map : v]
+  configure_private_link       = var.create_agent
   enable_public_access         = var.enable_azure_key_vault_public_access
   generate_secrets             = var.azdo_variable_group_variables_to_generate
   location                     = var.azure_location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
   name                         = local.key_vault_name
-  private_endpoint_subnet_id   = module.network.private_endpoint_subnet_id
+  private_endpoint_subnet_id   = var.create_agent ?  module.network.private_endpoint_subnet_id : null
   resource_group_name          = azurerm_resource_group.rg.name
   secrets                      = var.azdo_variable_group_variables
   tags                         = local.tags
@@ -31,6 +32,8 @@ module network {
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
   resource_group_name          = azurerm_resource_group.rg.name
   tags                         = local.tags
+
+  count                        = var.create_agent ? 1 : 0
 }
 
 module service_principal {
@@ -120,14 +123,14 @@ module self_hosted_linux_agents {
 
   enable_public_access         = var.enable_azure_key_vault_public_access
   install_tools                = var.azure_agent_linux_tools
-  outbound_ip_address          = module.network.outbound_ip_address
+  outbound_ip_address          = module.network.0.outbound_ip_address
   prepare_host                 = var.prepare_host
   resource_group_name          = azurerm_resource_group.rg.name
   shutdown_time                = var.shutdown_time
   ssh_public_key               = var.azure_agent_ssh_public_key
   tags                         = local.tags
   timezone                     = var.timezone
-  subnet_id                    = module.network.self_hosted_agents_subnet_id
+  subnet_id                    = module.network.0.self_hosted_agents_subnet_id
   suffix                       = local.suffix
   user_assigned_identity_id    = azurerm_user_assigned_identity.agents.id
   user_name                    = var.azure_agent_user_name

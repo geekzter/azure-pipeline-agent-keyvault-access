@@ -5,6 +5,9 @@ variable allow_cidr_ranges {
 variable client_object_ids {
   type                        = list
 }
+variable configure_private_link {
+  type                        = bool
+}
 variable enable_public_access {
   type                         = bool
 }

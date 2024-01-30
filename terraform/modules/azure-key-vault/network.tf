@@ -13,13 +13,17 @@ resource azurerm_private_endpoint vault_endpoint {
   }
 
   tags                         = var.tags
+
+  count                        = var.configure_private_link ? 1 : 0
 }
 resource azurerm_private_dns_a_record vault_dns_record {
   name                         = azurerm_key_vault.vault.name
   zone_name                    = "privatelink.vaultcore.azure.net"
   resource_group_name          = var.resource_group_name
   ttl                          = 300
-  records                      = [azurerm_private_endpoint.vault_endpoint.private_service_connection[0].private_ip_address]
+  records                      = [azurerm_private_endpoint.vault_endpoint.0.private_service_connection[0].private_ip_address]
 
   tags                         = var.tags
+
+  count                        = var.configure_private_link ? 1 : 0
 }
