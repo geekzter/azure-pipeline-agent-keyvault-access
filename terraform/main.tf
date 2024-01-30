@@ -34,7 +34,7 @@ locals {
   allow_ip_ranges              = sort(distinct(concat([for range in local.azdo_geography_ip_ranges : cidrsubnet(range,0,0)],tolist([local.terraform_ip_address])))) # Make sure ranges have correct base address
   azdo_org_url                 = replace(var.azdo_org_url,"/\\/$/","")
   azdo_geography_ip_ranges     = var.azdo_geography != null ? local.geographies[lower(var.azdo_geography)] : flatten(values(local.geographies))
-  environment_variables        = {
+  environment_variables        = var.create_agent ? {
     PIPELINE_DEMO_AGENT_LOCATION           = var.azure_location
     PIPELINE_DEMO_AGENT_OUTBOUND_IP        = module.network.outbound_ip_address
     PIPELINE_DEMO_AGENT_SUBNET_ID          = module.network.self_hosted_agents_subnet_id
@@ -47,7 +47,7 @@ locals {
     PIPELINE_DEMO_RESOURCE_GROUP_NAME      = azurerm_resource_group.rg.name
     PIPELINE_DEMO_RESOURCE_PREFIX          = var.resource_prefix
     PIPELINE_DEMO_RESOURCE_SUBSCRIPTION_ID = data.azurerm_subscription.current.subscription_id
-  }
+  } : {}
   initial_suffix               = var.resource_suffix != null && var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
   initial_tags                 = merge(
     {
@@ -104,8 +104,8 @@ resource local_file verify_keyvault_remote_access_script {
   content                      = templatefile("${path.root}/../scripts/templates/verify_keyvault_remote_access.template.ps1",
   {
     agentName                  = local.pipeline_agent_name
-    bastionId                  = module.network.bastion_id
-    bastionName                = module.network.bastion_name
+    bastionId                  = module.network.0.bastion_id
+    bastionName                = module.network.0.bastion_name
     identityObjectId           = azurerm_user_assigned_identity.agents.principal_id
     keyVaultName               = module.key_vault.key_vault_name
     resourceGroup              = azurerm_resource_group.rg.name
@@ -116,5 +116,5 @@ resource local_file verify_keyvault_remote_access_script {
   })
   filename                     = "${path.root}/../data/${terraform.workspace}/verify_keyvault_remote_access.ps1"
 
-  count                        = var.create_azure_bastion ? 1 : 0
+  count                        = var.create_agent && var.create_azure_bastion ? 1 : 0
 }

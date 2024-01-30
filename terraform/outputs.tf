@@ -77,13 +77,13 @@ output azure_agent_vm_url {
 }
 
 output azure_bastion_id {
-  value       = var.create_azure_bastion ? module.network.bastion_id : null
+  value       = var.create_azure_bastion && var.create_agent ? module.network.0.bastion_id : null
 }
 output azure_bastion_name {
-  value       = var.create_azure_bastion ? module.network.bastion_name : null
+  value       = var.create_azure_bastion && var.create_agent ? module.network.0.bastion_name : null
 }
 output azure_bastion_url {
-  value       = var.create_azure_bastion ? "https://portal.azure.com/#@${data.azurerm_subscription.current.tenant_id}/resource${module.network.bastion_id}/overview" : null
+  value       = var.create_azure_bastion && var.create_agent ? "https://portal.azure.com/#@${data.azurerm_subscription.current.tenant_id}/resource${module.network.0.bastion_id}/overview" : null
 }
 output azure_key_vault_id {
   value       = module.key_vault.key_vault_id
@@ -104,10 +104,10 @@ output azure_resource_group_url {
   value       = "https://portal.azure.com/#@${data.azurerm_subscription.current.tenant_id}/resource${azurerm_resource_group.rg.id}/overview"
 }
 output azure_virtual_network_id {
-  value       = module.network.virtual_network_id
+  value       = var.create_agent ? module.network.0.virtual_network_id : null
 }
 output azure_virtual_network_name {
-  value       = module.network.virtual_network_name
+  value       = var.create_agent ? module.network.0.virtual_network_name : null
 }
 output azure_virtual_network_url {
   value       = "https://portal.azure.com/#@${data.azurerm_subscription.current.tenant_id}/resource${azurerm_resource_group.rg.id}/overview"
