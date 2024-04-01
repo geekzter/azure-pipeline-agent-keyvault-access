@@ -8,7 +8,7 @@ module key_vault {
   location                     = var.azure_location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
   name                         = local.key_vault_name
-  private_endpoint_subnet_id   = var.create_agent ?  module.network.private_endpoint_subnet_id : null
+  private_endpoint_subnet_id   = var.create_agent ?  module.network.0.private_endpoint_subnet_id : null
   resource_group_name          = azurerm_resource_group.rg.name
   secrets                      = var.azdo_variable_group_variables
   tags                         = local.tags

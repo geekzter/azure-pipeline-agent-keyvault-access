@@ -3,7 +3,7 @@ terraform {
     azuread                    = "= 2.36.0"
     azuredevops = {
       source                   = "microsoft/azuredevops"
-      version                  = "~> 0.3"
+      version                  = "~> 1.0"
     }
     azurerm                    = "~> 3.39"
     cloudinit                  = "~> 2.2"
