@@ -36,9 +36,9 @@ locals {
   azdo_geography_ip_ranges     = var.azdo_geography != null ? local.geographies[lower(var.azdo_geography)] : flatten(values(local.geographies))
   environment_variables        = var.create_agent ? {
     PIPELINE_DEMO_AGENT_LOCATION           = var.azure_location
-    PIPELINE_DEMO_AGENT_OUTBOUND_IP        = module.network.outbound_ip_address
-    PIPELINE_DEMO_AGENT_SUBNET_ID          = module.network.self_hosted_agents_subnet_id
-    PIPELINE_DEMO_AGENT_VIRTUAL_NETWORK_ID = module.network.virtual_network_id
+    PIPELINE_DEMO_AGENT_OUTBOUND_IP        = module.network.0.outbound_ip_address
+    PIPELINE_DEMO_AGENT_SUBNET_ID          = module.network.0.self_hosted_agents_subnet_id
+    PIPELINE_DEMO_AGENT_VIRTUAL_NETWORK_ID = module.network.0.virtual_network_id
     PIPELINE_DEMO_APPLICATION_NAME         = var.application_name
     PIPELINE_DEMO_APPLICATION_OWNER        = local.owner
     # PIPELINE_DEMO_KEY_VAULT_ID             = module.key_vault.key_vault_id
