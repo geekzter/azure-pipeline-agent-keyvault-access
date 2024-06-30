@@ -1,18 +1,21 @@
 data azuread_client_config current {}
 
 locals {
-  owner_object_id              = var.owner_object_id != null && var.owner_object_id != "" ? lower(var.owner_object_id) : data.azuread_client_config.current.object_id
+  owner_object_ids              = var.owner_object_ids != null ? var.owner_object_ids : [data.azuread_client_config.current.object_id]
 }
 
 resource azuread_application app_registration {
   display_name                 = var.name
-  owners                       = [local.owner_object_id]
+  notes                        = var.notes
+  owners                       = local.owner_object_ids
+  prevent_duplicate_names      = true
+  service_management_reference = var.service_management_reference
   sign_in_audience             = var.multi_tenant ? "AzureADMultipleOrgs" : null
 }
 
 resource azuread_service_principal spn {
-  application_id               = azuread_application.app_registration.application_id
-  owners                       = [local.owner_object_id]
+  application_id               = azuread_application.app_registration.client_id
+  owners                       = local.owner_object_ids
 }
 
 resource azuread_application_federated_identity_credential fic {

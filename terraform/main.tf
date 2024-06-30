@@ -40,7 +40,7 @@ locals {
     PIPELINE_DEMO_AGENT_SUBNET_ID          = module.network.0.self_hosted_agents_subnet_id
     PIPELINE_DEMO_AGENT_VIRTUAL_NETWORK_ID = module.network.0.virtual_network_id
     PIPELINE_DEMO_APPLICATION_NAME         = var.application_name
-    PIPELINE_DEMO_APPLICATION_OWNER        = local.owner
+    PIPELINE_DEMO_APPLICATION_OWNER        = var.application_owner
     # PIPELINE_DEMO_KEY_VAULT_ID             = module.key_vault.key_vault_id
     # PIPELINE_DEMO_KEY_VAULT_NAME           = module.key_vault.key_vault_name
     PIPELINE_DEMO_RESOURCE_GROUP_ID        = azurerm_resource_group.rg.id
@@ -53,7 +53,7 @@ locals {
     {
       application              = var.application_name
       githubRepo               = "https://github.com/geekzter/azure-pipeline-agent-keyvault-access"
-      owner                    = local.owner
+      owner                    = var.application_owner
       provisioner              = "terraform"
       provisionerClientId      = data.azuread_client_config.current.client_id
       provisionerObjectId      = data.azuread_client_config.current.object_id
@@ -65,8 +65,7 @@ locals {
     var.azure_tags
   )
   key_vault_name               = terraform.workspace == "default" ? "variablegroup${local.suffix}" : "variablegroup${terraform.workspace}${local.suffix}"
-  owner                        = var.application_owner != "" ? var.application_owner : local.owner_object_id
-  owner_object_id              = var.owner_object_id != null && var.owner_object_id != "" ? lower(var.owner_object_id) : data.azuread_client_config.current.object_id
+  notes                        = "Variable group service connection ${local.key_vault_name}. Managed by Terraform: https://github.com/geekzter/azure-pipeline-agent-keyvault-access"
   password                     = ".Az9${random_string.password.result}"
   pipeline_agent_name          = "${var.resource_prefix}-keyvault-${terraform.workspace}"
   suffix                       = azurerm_resource_group.rg.tags["suffix"] # Ignores updates to var.resource_suffix

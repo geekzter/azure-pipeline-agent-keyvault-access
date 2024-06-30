@@ -10,6 +10,8 @@ variable multi_tenant {
   type   = bool
 }
 variable name {}
-variable owner_object_id {
-  default = null
+variable notes {}
+variable owner_object_ids {
+  type    = list(string)
 }
+variable service_management_reference {}
