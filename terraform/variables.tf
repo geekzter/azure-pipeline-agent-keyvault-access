@@ -146,8 +146,15 @@ variable enable_azure_key_vault_public_access {
   default                      = false
 }
 
-variable owner_object_id {
+variable entra_owner_object_ids {
   default                      = null
+  description                  = "Object ids of the users that will be co-owners of the Entra ID app registration"
+  type                         = list(string)
+}
+variable entra_service_management_reference {
+  default                      = null
+  description                  = "IT Service Management Reference to add to the App Registration"
+  type                         = string
 }
 
 variable prepare_host {

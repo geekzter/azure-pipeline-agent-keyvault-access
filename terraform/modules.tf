@@ -43,7 +43,9 @@ module service_principal {
   issuer                       = var.create_entra_federation ? module.azure_devops_service_connection.0.service_connection_oidc_issuer : null
   multi_tenant                 = false
   name                         = "${var.resource_prefix}-keyvault-service-connection-${terraform.workspace}-${local.suffix}"
-  owner_object_id              = local.owner_object_id
+  notes                        = local.notes
+  owner_object_ids             = var.entra_owner_object_ids
+  service_management_reference = var.entra_service_management_reference
 
   count                        = var.create_azdo_resources ? 1 : 0
 }

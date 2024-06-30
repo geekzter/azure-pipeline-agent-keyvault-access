@@ -1,6 +1,6 @@
 terraform {
   required_providers {
-    azuread                    = "= 2.36.0"
+    azuread                    = "~> 2.36"
     azuredevops = {
       source                   = "microsoft/azuredevops"
       version                  = "~> 1.0"
