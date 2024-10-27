@@ -10,7 +10,7 @@ resource azurerm_storage_account diagnostics {
   account_tier                 = "Standard"
   account_replication_type     = "LRS"
   allow_nested_items_to_be_public = false
-  enable_https_traffic_only    = true
+  https_traffic_only_enabled   = true
 
   tags                         = local.tags
 }
