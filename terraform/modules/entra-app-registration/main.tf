@@ -14,14 +14,14 @@ resource azuread_application app_registration {
 }
 
 resource azuread_service_principal spn {
-  application_id               = azuread_application.app_registration.client_id
+  client_id                    = azuread_application.app_registration.client_id
   owners                       = local.owner_object_ids
 }
 
 resource azuread_application_federated_identity_credential fic {
-  application_object_id        = azuread_application.app_registration.object_id
+  application_id               = azuread_application.app_registration.id
   description                  = "Created by Terraform"
-  display_name                 = replace(var.federation_subject,"/[:/ ]+/","-")
+  display_name                 = replace(element(split("/",var.federation_subject),-1),"/\\W+/","-")
   audiences                    = ["api://AzureADTokenExchange"]
   issuer                       = var.issuer
   subject                      = var.federation_subject

@@ -32,7 +32,7 @@ resource azurerm_monitor_diagnostic_setting nat_egress {
     category                   = "DDoSMitigationReports"
   }  
 
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
 } 
@@ -40,6 +40,24 @@ resource azurerm_monitor_diagnostic_setting nat_egress {
 resource azurerm_nat_gateway_public_ip_association egress {
   nat_gateway_id               = azurerm_nat_gateway.egress.id
   public_ip_address_id         = azurerm_public_ip.nat_egress.id
+}
+
+resource azurerm_subnet_nat_gateway_association bastion_subnet {
+  subnet_id                    = azurerm_subnet.bastion_subnet.id
+  nat_gateway_id               = azurerm_nat_gateway.egress.id
+
+  depends_on                   = [
+    azurerm_nat_gateway_public_ip_association.egress,
+  ]
+}
+
+resource azurerm_subnet_nat_gateway_association private_endpoint_subnet {
+  subnet_id                    = azurerm_subnet.private_endpoint_subnet.id
+  nat_gateway_id               = azurerm_nat_gateway.egress.id
+
+  depends_on                   = [
+    azurerm_nat_gateway_public_ip_association.egress,
+  ]
 }
 
 resource azurerm_subnet_nat_gateway_association self_hosted_agents {
