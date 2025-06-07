@@ -10,50 +10,12 @@ resource azurerm_storage_account diagnostics {
   account_tier                 = "Standard"
   account_replication_type     = "LRS"
   allow_nested_items_to_be_public = false
+  default_to_oauth_authentication = true
   https_traffic_only_enabled   = true
+  shared_access_key_enabled    = false
 
   tags                         = local.tags
 }
-resource time_offset sas_expiry {
-  offset_years                 = 1
-}
-resource time_offset sas_start {
-  offset_days                  = -1
-}
-data azurerm_storage_account_sas diagnostics {
-  connection_string            = azurerm_storage_account.diagnostics.primary_connection_string
-  https_only                   = true
-
-  resource_types {
-    service                    = false
-    container                  = true
-    object                     = true
-  }
-
-  services {
-    blob                       = true
-    queue                      = false
-    table                      = true
-    file                       = false
-  }
-
-  start                        = time_offset.sas_start.rfc3339
-  expiry                       = time_offset.sas_expiry.rfc3339  
-
-  permissions {
-    add                        = true
-    create                     = true
-    delete                     = false
-    filter                     = false
-    list                       = true
-    process                    = false
-    read                       = false
-    tag                        = false
-    update                     = true
-    write                      = true
-  }
-}
-
 resource azurerm_log_analytics_workspace monitor {
   name                         = "${azurerm_resource_group.rg.name}-loganalytics"
   resource_group_name          = azurerm_resource_group.rg.name
