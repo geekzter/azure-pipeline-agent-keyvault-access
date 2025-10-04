@@ -28,6 +28,9 @@ variable computer_name {}
 variable install_tools {
   type                         = bool
 }
+variable ip_tags {
+    type                       = map
+}
 variable name {}
 variable os_offer {}
 variable os_publisher {}

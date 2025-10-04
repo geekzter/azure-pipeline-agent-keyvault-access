@@ -28,6 +28,7 @@ module network {
   deploy_bastion               = var.create_azure_bastion
   diagnostics_storage_id       = azurerm_storage_account.diagnostics.id
   enable_public_access         = var.enable_azure_key_vault_public_access
+  ip_tags                      = var.azure_ip_tags
   location                     = var.azure_location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_id
   resource_group_name          = azurerm_resource_group.rg.name
@@ -125,6 +126,7 @@ module self_hosted_linux_agents {
 
   enable_public_access         = var.enable_azure_key_vault_public_access
   install_tools                = var.azure_agent_linux_tools
+  ip_tags                      = var.azure_ip_tags
   outbound_ip_address          = module.network.0.outbound_ip_address
   prepare_host                 = var.prepare_host
   resource_group_name          = azurerm_resource_group.rg.name
