@@ -6,7 +6,7 @@ resource azurerm_key_vault vault {
   resource_group_name          = var.resource_group_name
   tenant_id                    = data.azurerm_client_config.current.tenant_id
 
-  enable_rbac_authorization    = var.use_aad_rbac
+  rbac_authorization_enabled   = var.use_aad_rbac
   purge_protection_enabled     = false
   sku_name                     = "premium" # Required for VNet integration
 

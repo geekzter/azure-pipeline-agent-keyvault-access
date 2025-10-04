@@ -14,6 +14,9 @@ variable diagnostics_storage_id {}
 variable enable_public_access {
   type                         = bool
 }
+variable ip_tags {
+    type                       = map
+}
 variable location {}
 variable log_analytics_workspace_resource_id {}
 variable resource_group_name {}

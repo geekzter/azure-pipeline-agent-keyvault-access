@@ -97,6 +97,13 @@ variable azure_bastion_tags {
   default                      = {}  
   nullable                     = false
 } 
+variable azure_ip_tags {
+  description                  = "A map of the ip_tags to use for public ip addresses"
+  type                         = map
+  nullable                     = false
+
+  default                      = {}  
+} 
 variable azure_location {
   default                      = "westeurope"
   nullable                     = false
